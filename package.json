@@ -1,0 +1,30 @@
+{
+  "name": "vocaliacademyapp-backend",
+  "version": "1.0.0",
+  "description": "App to manage users and services of Vocali Academy",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cestela/vocaliacademyapp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cestela/vocaliacademyapp/issues"
+  },
+  "homepage": "https://github.com/cestela/vocaliacademyapp#readme",
+  "dependencies": {
+    "cloudinary": "^1.34.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongoose": "^6.10.0",
+    "nodemon": "^2.0.20",
+    "sharp": "^0.31.3"
+  }
+}
