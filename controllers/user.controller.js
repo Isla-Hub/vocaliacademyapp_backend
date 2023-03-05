@@ -29,8 +29,6 @@ const createUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
-    console.log("id", req.params.id);
-    console.log("body", req.body);
     const user = await User.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
