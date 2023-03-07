@@ -4,6 +4,11 @@ const ServiceSchema = new mongoose.Schema({
   createdAt: {
     type: String,
     required: true,
+
+    //like mongodb/models/users.js
+    //createdAt: {
+    //type: Date,
+    //default: Date.now,
   },
   name: {
     type: String,
@@ -34,7 +39,7 @@ const ServiceSchema = new mongoose.Schema({
   groupSize: {
     type: Number,
     required: true,
-  }
+  },
 });
 
 const serviceModel = mongoose.model("Service", ServiceSchema);
