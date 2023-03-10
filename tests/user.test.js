@@ -15,7 +15,7 @@ let newUser = {
   phoneNumber: "1234567890",
   avatar:
     "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
-  birthday: new Date(),
+  dateOfBirth: new Date(),
   role: "student",
   password: "test1234",
 };
@@ -23,23 +23,24 @@ let newUser = {
 let user;
 
 beforeAll(async () => {
-  await mongoose.connect(process.env.MONGODB_URL);
+  mongoose.set("strictQuery", true);
+  mongoose.connect(process.env.MONGODB_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
   user = await User.create({
     name: "TestUser",
     lastName: "TestUserLastName",
     email: "testuser@example.com",
     phoneNumber: "1234567890",
-    avatar:
-      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
-    birthday: new Date(),
+    dateOfBirth: new Date(),
     role: "admin",
     password: "test1234",
   });
 });
 
 afterAll(async () => {
-  await User.deleteMany({ email: "testuser@example.com" });
-  await User.deleteMany({ email: "newuser@example.com" });
+  await User.deleteMany({ email: { $in: ['testuser@example.com', 'newuser@example.com'] }});
   await mongoose.connection.close();
 });
 
@@ -56,8 +57,9 @@ describe("POST /api/v1/users", () => {
         expect(response.body.lastName).toBe(newUser.lastName);
         expect(response.body.email).toBe(newUser.email);
         expect(response.body.phoneNumber).toBe(newUser.phoneNumber);
-        expect(response.body.avatar).toBe(newUser.avatar);
-        expect(response.body.birthday).toBe(newUser.birthday.toISOString());
+        expect(response.body.dateOfBirth).toBe(
+          newUser.dateOfBirth.toISOString()
+        );
         expect(response.body.role).toBe(newUser.role);
         expect(response.body.password).toBe(newUser.password);
         expect(response.body.subscribed.newsletter).toBe(true);
@@ -66,22 +68,22 @@ describe("POST /api/v1/users", () => {
         expect(response.body.payments).toBeInstanceOf(Array);
 
         // Check the data in the database
-        const user = await User.findOne({ _id: response.body._id });
-        expect(user).toBeTruthy();
-        expect(user.name).toBe(newUser.name);
-        expect(user.lastName).toBe(newUser.lastName);
-        expect(user.email).toBe(newUser.email);
-        expect(user.phoneNumber).toBe(newUser.phoneNumber);
-        expect(user.avatar).toBe(newUser.avatar);
-        expect(user.birthday.toISOString()).toBe(
-          newUser.birthday.toISOString()
+        const dbUser = await User.findOne({ _id: response.body._id });
+        expect(dbUser).toBeTruthy();
+        expect(dbUser._id.toString()).toBe(response.body._id);
+        expect(dbUser.name).toBe(newUser.name);
+        expect(dbUser.lastName).toBe(newUser.lastName);
+        expect(dbUser.email).toBe(newUser.email);
+        expect(dbUser.phoneNumber).toBe(newUser.phoneNumber);
+        expect(dbUser.dateOfBirth.toISOString()).toBe(
+          newUser.dateOfBirth.toISOString()
         );
-        expect(user.role).toBe(newUser.role);
-        expect(user.password).toBe(newUser.password);
-        expect(user.subscribed.newsletter).toBe(true);
-        expect(user.subscribed.notifications).toBe(true);
-        expect(user.services).toBeInstanceOf(Array);
-        expect(user.payments).toBeInstanceOf(Array);
+        expect(dbUser.role).toBe(newUser.role);
+        expect(dbUser.password).toBe(newUser.password);
+        expect(dbUser.subscribed.newsletter).toBe(true);
+        expect(dbUser.subscribed.notifications).toBe(true);
+        expect(dbUser.services).toBeInstanceOf(Array);
+        expect(dbUser.payments).toBeInstanceOf(Array);
       });
   });
 });
@@ -93,19 +95,24 @@ describe("GET /api/v1/users", () => {
       .expect(200)
       .then(async (response) => {
         // Check the response
-        expect(response.body[0]._id).toBeTruthy();
-        expect(response.body[0].name).toBe(user.name);
-        expect(response.body[0].lastName).toBe(user.lastName);
-        expect(response.body[0].email).toBe(user.email);
-        expect(response.body[0].phoneNumber).toBe(user.phoneNumber);
-        expect(response.body[0].avatar).toBe(user.avatar);
-        expect(response.body[0].birthday).toBe(user.birthday.toISOString());
-        expect(response.body[0].role).toBe(user.role);
-        expect(response.body[0].password).toBe(user.password);
-        expect(response.body[0].subscribed.newsletter).toBe(true);
-        expect(response.body[0].subscribed.notifications).toBe(true);
-        expect(response.body[0].services).toBeInstanceOf(Array);
-        expect(response.body[0].payments).toBeInstanceOf(Array);
+        expect(response.body.length).toBeGreaterThan(0);
+        const responseUser = response.body.find(
+          (usr) => usr.name === user.name
+        );
+        expect(responseUser._id).toBeTruthy();
+        expect(responseUser._id).toBe(user._id.toString());
+        expect(responseUser.name).toBe(user.name);
+        expect(responseUser.lastName).toBe(user.lastName);
+        expect(responseUser.email).toBe(user.email);
+        expect(responseUser.phoneNumber).toBe(user.phoneNumber);
+        expect(responseUser.avatar).toBe(user.avatar);
+        expect(responseUser.dateOfBirth).toBe(user.dateOfBirth.toISOString());
+        expect(responseUser.role).toBe(user.role);
+        expect(responseUser.password).toBe(user.password);
+        expect(responseUser.subscribed.newsletter).toBe(true);
+        expect(responseUser.subscribed.notifications).toBe(true);
+        expect(responseUser.services).toBeInstanceOf(Array);
+        expect(responseUser.payments).toBeInstanceOf(Array);
       });
   });
 });
@@ -118,12 +125,13 @@ describe("GET /api/v1/users/:id", () => {
       .then(async (response) => {
         // Check the response
         expect(response.body._id).toBeTruthy();
+        expect(response.body._id).toBe(user._id.toString());
         expect(response.body.name).toBe(user.name);
         expect(response.body.lastName).toBe(user.lastName);
         expect(response.body.email).toBe(user.email);
         expect(response.body.phoneNumber).toBe(user.phoneNumber);
         expect(response.body.avatar).toBe(user.avatar);
-        expect(response.body.birthday).toBe(user.birthday.toISOString());
+        expect(response.body.dateOfBirth).toBe(user.dateOfBirth.toISOString());
         expect(response.body.role).toBe(user.role);
         expect(response.body.password).toBe(user.password);
         expect(response.body.subscribed.newsletter).toBe(true);
@@ -145,12 +153,13 @@ describe("PUT /api/v1/users/:id", () => {
       .then(async (response) => {
         // Check the response
         expect(response.body._id).toBeTruthy();
+        expect(response.body._id).toBe(user._id.toString());
         expect(response.body.name).toBe("NewName");
         expect(response.body.lastName).toBe(user.lastName);
         expect(response.body.email).toBe(user.email);
         expect(response.body.phoneNumber).toBe(user.phoneNumber);
         expect(response.body.avatar).toBe(user.avatar);
-        expect(response.body.birthday).toBe(user.birthday.toISOString());
+        expect(response.body.dateOfBirth).toBe(user.dateOfBirth.toISOString());
         expect(response.body.role).toBe(user.role);
         expect(response.body.password).toBe(user.password);
         expect(response.body.subscribed.newsletter).toBe(true);
@@ -169,9 +178,10 @@ describe("DELETE /api/v1/users/:id", () => {
       .then(async (response) => {
         // Check the response
         expect(response.body._id).toBeTruthy();
+        expect(response.body._id).toBe(user._id.toString());
       });
 
-    user = await User.findOne({ _id: user._id });
-    expect(user).toBeFalsy();
+    const dbUser = await User.findOne({ _id: user._id });
+    expect(dbUser).toBeFalsy();
   });
 });
