@@ -2,13 +2,8 @@ import mongoose from "mongoose";
 
 const ServiceSchema = new mongoose.Schema({
   createdAt: {
-    type: String,
-    required: true,
-
-    //like mongodb/models/users.js
-    //createdAt: {
-    //type: Date,
-    //default: Date.now,
+    type: Date,
+    default: Date.now,
   },
   name: {
     type: String,
