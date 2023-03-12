@@ -117,7 +117,7 @@ describe("POST /api/v1/bookings", () => {
         expect(response.body.student).toBe(newBooking.student.toString());
         expect(response.body.instructor).toBe(newBooking.instructor.toString());
         expect(response.body.room).toBe(newBooking.room.toString());
-        expect(response.body.cancelled).toBeFalsy();
+        expect(response.body.cancelled).toBe(false);
         expect(response.body.room).toBe(newBooking.room.toString());
         expect(response.body.comments[0].by).toBe(
           newBooking.comments[0].by.toString()
@@ -144,7 +144,7 @@ describe("POST /api/v1/bookings", () => {
           newBooking.instructor.toString()
         );
         expect(dbBooking.room.toString()).toBe(newBooking.room.toString());
-        expect(dbBooking.cancelled).toBeFalsy();
+        expect(dbBooking.cancelled).toBe(false);
         expect(dbBooking.comments[0].by.toString()).toBe(
           newBooking.comments[0].by.toString()
         );
@@ -176,7 +176,7 @@ describe("GET /api/v1/bookings", () => {
         expect(responseBooking.student).toBe(booking.student.toString());
         expect(responseBooking.instructor).toBe(booking.instructor.toString());
         expect(responseBooking.room).toBe(booking.room.toString());
-        expect(responseBooking.cancelled).toBeFalsy();
+        expect(responseBooking.cancelled).toBe(false);
         expect(responseBooking.comments[0].by).toBe(
           booking.comments[0].by.toString()
         );
@@ -203,7 +203,7 @@ describe("GET /api/v1/bookings/:id", () => {
         expect(response.body.student).toBe(booking.student.toString());
         expect(response.body.instructor).toBe(booking.instructor.toString());
         expect(response.body.room).toBe(booking.room.toString());
-        expect(response.body.cancelled).toBeFalsy();
+        expect(response.body.cancelled).toBe(false);
         expect(response.body.comments[0].by).toBe(
           booking.comments[0].by.toString()
         );
@@ -231,7 +231,7 @@ describe("PUT /api/v1/bookings/:id", () => {
         expect(response.body.student).toBe(booking.student.toString());
         expect(response.body.instructor).toBe(booking.instructor.toString());
         expect(response.body.room).toBe(booking.room.toString());
-        expect(response.body.cancelled).toBeTruthy();
+        expect(response.body.cancelled).toBe(true);
         expect(response.body.comments[0].by).toBe(
           booking.comments[0].by.toString()
         );
