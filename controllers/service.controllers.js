@@ -32,6 +32,7 @@ const updateService = async (req, res) => {
     const service = await Service.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
+    res.status(200).json(service);
   } catch (error) {
     res.status(404).json({ message: error.message });
   }
