@@ -10,7 +10,6 @@ dotenv.config();
 const app = createServer();
 
 let newService = {
-  //cratedAt ->  look at the document "mongodb/models/service.js"
   name: "NewService",
   price: 120,
   sessionDuration: 1,
