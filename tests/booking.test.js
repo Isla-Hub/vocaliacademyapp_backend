@@ -13,7 +13,6 @@ const app = createServer();
 let newBooking = {
   startTime: "Wed Jan 27 2021 10:00:00 GMT+1000 (AEST)",
   endTime: "Wed Jan 27 2021 11:00:00 GMT+1000 (AEST)",
-  cancelled: false,
   comments: [
     {
       content: "I will not be able to attend ",
@@ -78,7 +77,6 @@ beforeAll(async () => {
     student: student._id,
     instructor: instructor._id,
     room: room._id,
-    cancelled: false,
     comments: [
       {
         by: student._id,
