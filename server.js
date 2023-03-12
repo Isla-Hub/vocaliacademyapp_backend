@@ -1,6 +1,7 @@
 import express from "express";
 import userRouter from "./routes/user.routes.js";
 import serviceRouter from "./routes/service.routes.js";
+import roomRouter from "./routes/room.routes.js";
 import cors from "cors";
 
 function createServer() {
@@ -9,6 +10,7 @@ function createServer() {
   app.use(express.json({ limit: "50mb" }));
   app.use("/api/v1/users", userRouter);
   app.use("/api/v1/services", serviceRouter);
+  app.use("/api/v1/rooms", roomRouter);
   return app;
 }
 

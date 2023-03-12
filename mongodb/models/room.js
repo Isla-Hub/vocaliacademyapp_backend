@@ -1,11 +1,13 @@
 import mongoose from "mongoose";
 
 const RoomSchema = new mongoose.Schema({
+  name: { type: String, required: true },
   createdAt: {
-    type: String,
-    required: true,
+    type: Date,
+    default: Date.now,
   },
-  features: [{ type: String }],  
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  features: [{ type: String }],
 });
 
 const roomModel = mongoose.model("Room", RoomSchema);
