@@ -3,6 +3,14 @@ import mongoose from "mongoose";
 const EventSchema = new mongoose.Schema({
   createdAt: {
     type: String,
+    default: Date.now,
+  },
+  createdBy: {
+    type: String,
+    required: true,
+  },
+  name: {
+    type: String,
     required: true,
   },
   date: {
@@ -25,16 +33,16 @@ const EventSchema = new mongoose.Schema({
   },
   totalAttended: {
     type: Number,
-    required: true,
   },
   isPublic: {
     type: Boolean,
-    required: true,
+    default: false,
   },
   categories: [{ type: String, required: true }],
   level: {
+    type: String,
     enum: ["beginner", "intermediate", "advanced"],
-    required: true,
+    default: "beginner",
   },
   internalPrice: {
     type: Number,

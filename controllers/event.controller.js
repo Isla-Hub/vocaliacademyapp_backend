@@ -1,5 +1,4 @@
-import Event from "../models/event.model.js";
-import User from "../models/user.model.js";
+import Event from "../mongodb/models/event.js";
 
 const getAllEvents = async (req, res) => {
     try {
