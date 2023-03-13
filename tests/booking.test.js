@@ -35,9 +35,9 @@ beforeAll(async () => {
   });
 
   admin = await User.create({
-    name: "adminBooking",
-    lastName: "adminBookingLastName",
-    email: "adminBooking@example.com",
+    name: "AdminBooking",
+    lastName: "AdminBooking LastName",
+    email: "adminbooking@example.com",
     phoneNumber: "1234567890",
     dateOfBirth: new Date(),
     role: "admin",
@@ -45,9 +45,9 @@ beforeAll(async () => {
   });
 
   student = await User.create({
-    name: "studentBooking",
-    lastName: "studentBookingLastName",
-    email: "studentBooking@example.com",
+    name: "StudentBooking",
+    lastName: "StudentBooking LastName",
+    email: "studentbooking@example.com",
     phoneNumber: "1234567890",
     dateOfBirth: new Date(),
     role: "student",
@@ -55,9 +55,9 @@ beforeAll(async () => {
   });
 
   instructor = await User.create({
-    name: "instructorBooking",
-    lastName: "instructorBookingLastName",
-    email: "instructorBooking@example.com",
+    name: "InstructorBooking",
+    lastName: "InstructorBooking LastName",
+    email: "instructorbooking@example.com",
     phoneNumber: "1234567890",
     dateOfBirth: new Date(),
     role: "instructor",
@@ -65,7 +65,7 @@ beforeAll(async () => {
   });
 
   room = await Room.create({
-    name: "roomBooking",
+    name: "RoomBooking",
     features: ["test feature 1", "test feature 2"],
     createdBy: admin._id,
   });
@@ -96,8 +96,9 @@ afterAll(async () => {
   await Booking.deleteMany({
     startTime: "Wed Jan 27 2021 10:00:00 GMT+1000 (AEST)",
   });
+  await Room.deleteMany({ _id: room._id });
   await User.deleteMany({
-    email: { $in: [admin.email, student.email, instructor.email] },
+    _id: { $in: [admin._id, student._id, instructor._id] },
   });
   await mongoose.connection.close();
 });
