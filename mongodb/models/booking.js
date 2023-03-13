@@ -10,8 +10,8 @@ const BookingSchema = new mongoose.Schema({
     required: true,
   },
   endTime: {
-      type: Date,
-      required: true,
+    type: Date,
+    required: true,
   },
   bookedBy: {
     type: mongoose.Schema.Types.ObjectId,
@@ -23,7 +23,7 @@ const BookingSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-  teacher: {
+  instructor: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
@@ -32,26 +32,28 @@ const BookingSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Room",
     required: true,
-  }, 
+  },
   cancelled: {
     type: Boolean,
     default: false,
   },
-  comments: [{
+  comments: [
+    {
       by: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-          required: true,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
       },
       date: {
-          type: Date,
-          default: Date.now,
+        type: Date,
+        default: Date.now,
       },
       content: {
-          type: String,
-          required: true,
-      }
-  }]
+        type: String,
+        required: true,
+      },
+    },
+  ],
 });
 
 const bookingModel = mongoose.model("Booking", BookingSchema);
