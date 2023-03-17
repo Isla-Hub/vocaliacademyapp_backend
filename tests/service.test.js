@@ -24,15 +24,15 @@ let service;
 beforeAll(async () => {
   mongoose.set("strictQuery", true);
 
-  await mongoose.connect(process.env.MONGODB_URL, {
+  mongoose.connect(process.env.MONGODB_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
 
   admin = await User.create({
-    name: "adminService",
-    lastName: "adminServicelastName",
-    email: "adminService@example.com",
+    name: "AdminService",
+    lastName: "AdminService LastName",
+    email: "adminservice@example.com",
     phoneNumber: "1234567890",
     dateOfBirth: new Date(),
     role: "admin",
@@ -40,9 +40,9 @@ beforeAll(async () => {
   });
 
   instructor = await User.create({
-    name: "instructorService",
-    lastName: "instructorServicelastName",
-    email: "instructorService@example.com",
+    name: "InstructorService",
+    lastName: "InstructorService LastName",
+    email: "instructorservice@example.com",
     phoneNumber: "1234567890",
     dateOfBirth: new Date(),
     role: "instructor",
@@ -63,8 +63,9 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await Service.deleteMany({ name: "TestService" });
-  await User.deleteMany({ name: { $in: [admin.email, instructor.email] } });
+  newService = await Service.findOne({ name: newService.name });
+  await Service.deleteMany({ _id: { $in: [(service._id, newService?._id)] } });
+  await User.deleteMany({ _id: { $in: [admin._id, instructor._id] } });
   await mongoose.connection.close();
 });
 

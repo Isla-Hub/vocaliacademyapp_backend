@@ -9,12 +9,12 @@ dotenv.config();
 
 const app = createServer();
 
-const newRoom = {
-  name: "Room 1",
+let newRoom = {
+  name: "NewRoom",
   features: ["Feature 1", "Feature 2", "Feature 3"],
 };
 
-let user;
+let admin;
 let room;
 
 beforeAll(async () => {
@@ -23,9 +23,9 @@ beforeAll(async () => {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
-  user = await User.create({
-    name: "User1",
-    lastName: "User1lastName",
+  admin = await User.create({
+    name: "UserRoom",
+    lastName: "UserRoom LastName",
     email: "user1@example.com",
     phoneNumber: "1234567890",
     dateOfBirth: new Date(),
@@ -35,14 +35,15 @@ beforeAll(async () => {
   room = await Room.create({
     name: "TestRoom",
     features: ["test feature 1", "test feature 2"],
-    createdBy: user._id,
+    createdBy: admin._id,
   });
-  newRoom.createdBy = user._id;
+  newRoom.createdBy = admin._id;
 });
 
 afterAll(async () => {
-  await User.deleteMany({ email: "user1@example.com" });
-  await Room.deleteMany({ name: { $in: [room.name, newRoom.name] } });
+  newRoom = await Room.findOne({ name: newRoom.name });
+  await Room.deleteMany({ _id: { $in: [room._id, newRoom?._id] } });
+  await User.deleteMany({ _id: admin._id });
   await mongoose.connection.close();
 });
 

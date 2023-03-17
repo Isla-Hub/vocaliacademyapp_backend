@@ -10,7 +10,7 @@ const app = createServer();
 
 let newUser = {
   name: "NewUser",
-  lastName: "NewUserLastName",
+  lastName: "NewUser LastName",
   email: "newuser@example.com",
   phoneNumber: "1234567890",
   avatar:
@@ -40,7 +40,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await User.deleteMany({ email: { $in: ['testuser@example.com', 'newuser@example.com'] }});
+  newUser = await User.findOne({ email: newUser.email });
+  await User.deleteMany({ _id: { $in: [user._id, newUser?._id] } });
   await mongoose.connection.close();
 });
 
