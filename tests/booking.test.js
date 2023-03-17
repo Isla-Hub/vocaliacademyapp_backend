@@ -93,13 +93,6 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await Booking.deleteMany({
-    startTime: "Wed Jan 27 2021 10:00:00 GMT+1000 (AEST)",
-  });
-  await Room.deleteMany({ _id: room._id });
-  await User.deleteMany({
-    _id: { $in: [admin._id, student._id, instructor._id] },
-  });
   await mongoose.connection.close();
 });
 

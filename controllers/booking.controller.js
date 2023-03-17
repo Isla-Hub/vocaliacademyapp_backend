@@ -1,4 +1,4 @@
-import Booking from "../mongodb/models/booking";
+import Booking from "../mongodb/models/booking.js";
 
 const getAllBookings = async (req, res) => {
   try {
