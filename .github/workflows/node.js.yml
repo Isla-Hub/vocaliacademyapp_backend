@@ -3,7 +3,7 @@
 
 name: Node.js CI
 env: 
-  MONGODB_URL: localhost:27017
+  MONGODB_URL: mongodb://localhost:27017
   JWT_SECRET: ${{secrets.JWT_SECRET}}
 
 on:
