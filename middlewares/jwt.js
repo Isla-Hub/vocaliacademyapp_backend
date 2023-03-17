@@ -14,7 +14,7 @@ function authenticateToken(req, res, next) {
   if (token == null) return res.sendStatus(401);
 
   jwt.verify(token, process.env.JWT_SECRET, (err, data) => {
-    console.error(err);
+    console.log(err);
 
     if (err) return res.sendStatus(403);
 
