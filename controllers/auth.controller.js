@@ -23,7 +23,6 @@ const login = async (req, res) => {
     const token = generateAccessToken({ userId: user._id, role: user.role });
     return res.status(200).json({ token });
   } catch (error) {
-    console.error("Error in login controller:", error);
     return res.status(500).json({ message: "Server error" });
   }
 };
