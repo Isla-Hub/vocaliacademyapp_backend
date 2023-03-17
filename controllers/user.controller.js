@@ -1,4 +1,5 @@
 import User from "../mongodb/models/user.js";
+import bcrypt from "bcrypt";
 
 const getAllUsers = async (req, res) => {
   try {
@@ -20,8 +21,11 @@ const getUserById = async (req, res) => {
 
 const createUser = async (req, res) => {
   try {
-    const user = await User.create(req.body);
-    res.status(201).json(user);
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    console.log({ ...req.body, password: hashedPassword });
+    const user = await User.create({ ...req.body, password: hashedPassword });
+    const { password: _, ...userWithoutPassword } = user._doc;
+    res.status(201).json(userWithoutPassword);
   } catch (error) {
     res.status(409).json({ message: error.message });
   }
