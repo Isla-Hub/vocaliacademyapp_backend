@@ -113,7 +113,6 @@ describe("POST /api/v1/events", () => {
     expect(response.body.room).toBe(newEvent.room.toString());
     expect(response.body.eventGroupSize).toBe(newEvent.eventGroupSize);
     expect(response.body.isPublic).toBe(false);
-    console.log("response.body.categories", response.body.categories);
     expect(response.body.categories).toStrictEqual(newEvent.categories);
     expect(response.body.level).toBe("beginner");
     expect(response.body.internalPrice).toBe(newEvent.internalPrice);

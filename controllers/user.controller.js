@@ -22,7 +22,6 @@ const getUserById = async (req, res) => {
 const createUser = async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    console.log({ ...req.body, password: hashedPassword });
     const user = await User.create({ ...req.body, password: hashedPassword });
     const { password: _, ...userWithoutPassword } = user._doc;
     res.status(201).json(userWithoutPassword);

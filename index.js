@@ -12,7 +12,7 @@ const startServer = async () => {
       console.log(`Server is running on http://localhost:8080`);
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 

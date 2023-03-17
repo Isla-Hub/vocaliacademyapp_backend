@@ -4,9 +4,7 @@ import { generateAccessToken } from "../middlewares/jwt.js";
 
 const login = async (req, res) => {
   try {
-    console.log(req.body);
     if (!req.body.email || !req.body.password) {
-      console.log("entro");
       return res
         .status(400)
         .json({ message: "Email and password are required" });
@@ -15,7 +13,6 @@ const login = async (req, res) => {
     if (!user) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
-    console.log(user);
     const passwordMatches = await bcrypt.compare(
       req.body.password,
       user.password
