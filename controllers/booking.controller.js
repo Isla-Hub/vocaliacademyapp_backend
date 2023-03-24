@@ -1,4 +1,4 @@
-import Booking from "../mongodb/models/booking";
+import Booking from "../mongodb/models/booking.js";
 
 const getAllBookings = async (req, res) => {
   try {
@@ -22,7 +22,6 @@ const createBooking = async (req, res) => {
   try {
     const booking = await Booking.create(req.body);
     res.status(201).json(booking);
-    console.log(booking);
   } catch (error) {
     res.status(409).json({ message: error.message });
   }

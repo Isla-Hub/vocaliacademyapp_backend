@@ -7,12 +7,12 @@ dotenv.config();
 const startServer = async () => {
   try {
     connectDB(process.env.MONGODB_URL);
-    const app = await createServer();
+    const app = createServer();
     app.listen(8080, () => {
       console.log(`Server is running on http://localhost:8080`);
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 
