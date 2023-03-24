@@ -45,9 +45,6 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  newRoom = await Room.findOne({ name: newRoom.name });
-  await Room.deleteMany({ _id: { $in: [room._id, newRoom?._id] } });
-  await User.deleteMany({ _id: admin._id });
   await mongoose.connection.close();
 });
 

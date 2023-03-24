@@ -88,13 +88,6 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await User.deleteMany({
-    _id: { $in: [instructor._id, admin._id, student._id] },
-  });
-  await Room.deleteMany({ _id: room._id });
-  newEvent = await Event.findOne({ name: "NewEvent" });
-  await Event.deleteMany({ _id: { $in: [event._id, newEvent?._id] } });
-
   await mongoose.connection.close();
 });
 

@@ -67,9 +67,6 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  newService = await Service.findOne({ name: newService.name });
-  await Service.deleteMany({ _id: { $in: [(service._id, newService?._id)] } });
-  await User.deleteMany({ _id: { $in: [admin._id, instructor._id] } });
   await mongoose.connection.close();
 });
 

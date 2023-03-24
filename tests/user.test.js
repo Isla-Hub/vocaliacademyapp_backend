@@ -44,8 +44,6 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  newUser = await User.findOne({ email: newUser.email });
-  await User.deleteMany({ _id: { $in: [user._id, newUser?._id] } });
   await mongoose.connection.close();
 });
 
