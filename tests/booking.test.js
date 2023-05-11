@@ -156,6 +156,8 @@ describe("GET /api/v1/bookings", () => {
       (item) => item.name === booking.name
     );
 
+    console.log("****responseBooking****", responseBooking);
+
     expect(responseBooking._id).toBeTruthy();
     expect(responseBooking.startTime).toBeTruthy();
     expect(responseBooking.endTime).toBeTruthy();

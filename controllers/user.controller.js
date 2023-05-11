@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 const getAllUsers = async (req, res) => {
   try {
     const users = await User.find();
+    console.log("/*****users", users.length);
     res.status(200).json(users);
   } catch (error) {
     res.status(404).json({ message: error.message });
