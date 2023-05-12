@@ -3,7 +3,6 @@ import Booking from "../mongodb/models/booking.js";
 const getAllBookings = async (req, res) => {
   try {
     const bookings = await Booking.find();
-    console.log("*******bookings", bookings);
     res.status(200).json(bookings);
   } catch (error) {
     res.status(404).json({ message: error.message });

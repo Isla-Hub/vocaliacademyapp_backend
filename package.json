@@ -12,6 +12,9 @@
     "type": "git",
     "url": "git+https://github.com/cestela/vocaliacademyapp.git"
   },
+  "jest": {
+    "globalSetup": "./tests/config/setup.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

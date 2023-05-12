@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { createAdminUserConnectDB } from "./createAdminUserConnectDB.js";
 
 const connectDB = (url) => {
   mongoose.set("strictQuery", true);
@@ -7,13 +6,11 @@ const connectDB = (url) => {
     .connect(url)
     .then(() => {
       console.log("MongoDB Connected");
-      // Ejecutar el middleware createAdminUserMiddleware
-      const db = mongoose.connection;
-      createAdminUserConnectDB(() => {
-        console.log("Admin user created");
-      });
     })
-    .catch((err) => console.error(err));
+    .catch((err) => {
+      console.error("MongoDB connection error:", err);
+      process.exit(1);
+    });
 };
 
 export default connectDB;
