@@ -2,17 +2,6 @@ import User from "../../mongodb/models/user.js";
 
 async function createAdmin() {
   try {
-    //await User.deleteMany({});
-    // const existingUser = await User.findOne({
-    //   role: "admin",
-    //   email: "admin@myapp.com",
-    // });
-
-    // if (existingUser) {
-    //   console.log("Admin user already exists");
-    //   return;
-    // }
-
     const adminUser = new User({
       name: "Admin",
       lastName: "User",
