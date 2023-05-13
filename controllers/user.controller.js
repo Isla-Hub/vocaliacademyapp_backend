@@ -21,12 +21,19 @@ const getUserById = async (req, res) => {
 
 const createUser = async (req, res) => {
   try {
+    if (!req.body.password || !req.body.email) {
+      return res.status(400).json({ message: "Missing password or email" });
+    }
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const user = await User.create({ ...req.body, password: hashedPassword });
     const { password: _, ...userWithoutPassword } = user._doc;
     res.status(201).json(userWithoutPassword);
   } catch (error) {
-    res.status(409).json({ message: error.message });
+    if (error.code === 11000) {
+      return res.status(409).json({ message: "User already exists" });
+    } else {
+      return res.status(500).json({ message: error.message });
+    }
   }
 };
 
