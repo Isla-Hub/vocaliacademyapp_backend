@@ -1,4 +1,3 @@
-import request from "supertest";
 import createServer from "../server";
 import User from "../mongodb/models/user";
 import mongoose from "mongoose";
@@ -33,7 +32,7 @@ beforeAll(async () => {
   });
   user = await User.create({
     name: "TestUser",
-    lastName: "TestUserLastName",
+    lastName: "TestUser LastName",
     email: "testuser@example.com",
     phoneNumber: "1234567890",
     dateOfBirth: new Date(),
@@ -66,7 +65,7 @@ describe("POST /api/v1/users", () => {
     expect(response.body.subscribed.notifications).toBe(true);
     expect(response.body.services).toBeInstanceOf(Array);
     expect(response.body.payments).toBeInstanceOf(Array);
-    expect(response.body.password).toBeFalsy()
+    expect(response.body.password).toBeFalsy();
 
     // Check the data in the database
     const dbUser = await User.findOne({ _id: response.body._id });
@@ -140,6 +139,7 @@ describe("PUT /api/v1/users/:id", () => {
         name: "NewName",
       })
       .expect(200);
+
 
     // Check the response
     expect(response.body._id).toBeTruthy();

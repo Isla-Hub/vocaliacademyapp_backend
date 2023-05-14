@@ -1,4 +1,5 @@
 import express from "express";
+import { param } from "express-validator";
 
 import {
   getAllUsers,
@@ -8,12 +9,32 @@ import {
   deleteUser,
 } from "../controllers/user.controller.js";
 
+import {
+  createUserValidation,
+  updateUserValidation,
+} from "../middlewares/validations/userValidations.js";
+
+import handleValidationErrors from "../middlewares/validations/handleValidationErrors.js";
+
 const router = express.Router();
 
-router.route("/").get(getAllUsers);
-router.route("/:id").get(getUserById);
-router.route("/").post(createUser);
-router.route("/:id").put(updateUser);
-router.route("/:id").delete(deleteUser);
+router
+  .route("/")
+  .get(getAllUsers)
+  .post(createUserValidation, handleValidationErrors, createUser);
+  
+router
+  .route("/:id")
+  .get(
+    param("id").notEmpty().withMessage("Id is required"),
+    handleValidationErrors,
+    getUserById
+  )
+  .put(updateUserValidation, handleValidationErrors, updateUser)
+  .delete(
+    param("id").notEmpty().withMessage("Id is required"),
+    handleValidationErrors,
+    deleteUser
+  );
 
 export default router;

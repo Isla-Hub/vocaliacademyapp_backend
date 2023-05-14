@@ -1,4 +1,3 @@
-import request from "supertest";
 import createServer from "../server";
 import User from "../mongodb/models/user";
 import Service from "../mongodb/models/service";
