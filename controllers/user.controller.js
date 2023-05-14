@@ -1,5 +1,6 @@
 import User from "../mongodb/models/user.js";
 import bcrypt from "bcrypt";
+import mongoose from "mongoose";
 
 const getAllUsers = async (req, res) => {
   try {
@@ -12,10 +13,18 @@ const getAllUsers = async (req, res) => {
 
 const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const { id } = req.params;
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     res.status(200).json(user);
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -36,7 +45,12 @@ const createUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
-    const paramUser = await User.findById(req.params.id);
+    const { id } = req.params;
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
+    const paramUser = await User.findById(id);
     if (!paramUser) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -46,23 +60,33 @@ const updateUser = async (req, res) => {
         message: "Another user is using the provided email address",
       });
     }
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+    const user = await User.findByIdAndUpdate(id, req.body, {
       new: true,
       runValidators: true,
     });
     const { password: _, ...userWithoutPassword } = user._doc;
     res.status(200).json(userWithoutPassword);
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 
 const deleteUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndDelete(req.params.id);
-    res.status(200).json(user);
+    const { id } = req.params;
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const userDeleted = await User.findByIdAndDelete(req.params.id);
+
+    res.status(200).json(userDeleted);
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 
