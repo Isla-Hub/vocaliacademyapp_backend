@@ -66,6 +66,7 @@ describe("POST /api/v1/users", () => {
     expect(response.body.subscribed.notifications).toBe(true);
     expect(response.body.services).toBeInstanceOf(Array);
     expect(response.body.payments).toBeInstanceOf(Array);
+    expect(response.body.password).toBeFalsy()
 
     // Check the data in the database
     const dbUser = await User.findOne({ _id: response.body._id });

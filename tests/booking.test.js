@@ -1,9 +1,9 @@
-import request from "supertest";
 import createServer from "../server";
 import User from "../mongodb/models/user";
 import Room from "../mongodb/models/room";
 import Booking from "../mongodb/models/booking";
 import mongoose from "mongoose";
+
 import * as dotenv from "dotenv";
 import { getAuthenticatedAgent } from "./utils/authentication.js";
 
@@ -152,9 +152,9 @@ describe("GET /api/v1/bookings", () => {
     const response = await agent.get("/api/v1/bookings").expect(200);
     // Check the response
     expect(response.body.length).toBeGreaterThan(0);
-    const responseBooking = response.body.find(
-      (item) => item.name === booking.name
-    );
+    const responseBooking = response.body.find((item) => {
+      return item._id === booking._id.toString();
+    });
 
     expect(responseBooking._id).toBeTruthy();
     expect(responseBooking.startTime).toBeTruthy();
