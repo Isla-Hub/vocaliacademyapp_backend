@@ -1,4 +1,3 @@
-import request from "supertest";
 import createServer from "../server";
 import User from "../mongodb/models/user";
 import mongoose from "mongoose";
@@ -33,7 +32,7 @@ beforeAll(async () => {
   });
   user = await User.create({
     name: "TestUser",
-    lastName: "TestUserLastName",
+    lastName: "TestUser LastName",
     email: "testuser@example.com",
     phoneNumber: "1234567890",
     dateOfBirth: new Date(),
@@ -41,6 +40,10 @@ beforeAll(async () => {
     password: "test1234",
   });
   agent = await getAuthenticatedAgent(app);
+});
+
+beforeEach(() => {
+  jest.resetAllMocks();
 });
 
 afterAll(async () => {
@@ -66,7 +69,7 @@ describe("POST /api/v1/users", () => {
     expect(response.body.subscribed.notifications).toBe(true);
     expect(response.body.services).toBeInstanceOf(Array);
     expect(response.body.payments).toBeInstanceOf(Array);
-    expect(response.body.password).toBeFalsy()
+    expect(response.body.password).toBeFalsy();
 
     // Check the data in the database
     const dbUser = await User.findOne({ _id: response.body._id });
@@ -109,6 +112,17 @@ describe("GET /api/v1/users", () => {
     expect(responseUser.services).toBeInstanceOf(Array);
     expect(responseUser.payments).toBeInstanceOf(Array);
   });
+
+  it("should return a 404 status and error message when an error occurs", async () => {
+    jest.spyOn(User, "find").mockImplementation(() => {
+      throw new Error("Database error");
+    });
+
+    const response = await agent.get("/api/v1/users");
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ message: "Database error" });
+  });
 });
 
 describe("GET /api/v1/users/:id", () => {
@@ -129,6 +143,33 @@ describe("GET /api/v1/users/:id", () => {
     expect(response.body.subscribed.notifications).toBe(true);
     expect(response.body.services).toBeInstanceOf(Array);
     expect(response.body.payments).toBeInstanceOf(Array);
+  });
+
+  it("should return a 400 status and error message when given an invalid user ID", async () => {
+    const response = await agent.get("/api/v1/users/invalid");
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ message: "Invalid user ID" });
+  });
+
+  it("should return a 404 status and error message when user is not found", async () => {
+    jest.spyOn(User, "findById").mockReturnValue(null);
+
+    const response = await agent.get(`/api/v1/users/${user._id}`);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ message: "User not found" });
+  });
+
+  it("should return a 500 status and error message when an error occurs", async () => {
+    jest.spyOn(User, "findById").mockImplementation(() => {
+      throw new Error("Database error");
+    });
+
+    const response = await agent.get(`/api/v1/users/${user._id}`);
+
+    expect(response.status).toBe(500);
+    expect(response.body).toEqual({ message: "Database error" });
   });
 });
 
@@ -156,6 +197,38 @@ describe("PUT /api/v1/users/:id", () => {
     expect(response.body.services).toBeInstanceOf(Array);
     expect(response.body.payments).toBeInstanceOf(Array);
   });
+
+  it("should return a 400 status and error message when given an invalid user ID", async () => {
+    const response = await agent
+      .put("/api/v1/users/invalid")
+      .send({ name: "John Doe" });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ message: "Invalid user ID" });
+  });
+  it("should return a 404 status and error message when user is not found", async () => {
+    const userId = new mongoose.Types.ObjectId();
+
+    const response = await agent
+      .put(`/api/v1/users/${userId}`)
+      .send({ name: "John Doe" });
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ message: "User not found" });
+  });
+
+  it("should return a 500 status and error message when an error occurs", async () => {
+    jest.spyOn(User, "findByIdAndUpdate").mockImplementation(() => {
+      throw new Error("Database error");
+    });
+
+    const response = await agent
+      .put(`/api/v1/users/${user._id}`)
+      .send({ name: "John Doe" });
+
+    expect(response.status).toBe(500);
+    expect(response.body).toEqual({ message: "Database error" });
+  });
 });
 
 describe("DELETE /api/v1/users/:id", () => {
@@ -164,11 +237,38 @@ describe("DELETE /api/v1/users/:id", () => {
       .delete(`/api/v1/users/${user._id}`)
       .expect(200);
 
-    // Check the response
     expect(response.body._id).toBeTruthy();
     expect(response.body._id).toBe(user._id.toString());
 
     const dbUser = await User.findOne({ _id: user._id });
     expect(dbUser).toBeFalsy();
+  });
+
+  it("should return a 400 status and error message when given an invalid user ID", async () => {
+    const response = await agent.delete("/api/v1/users/invalid");
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ message: "Invalid user ID" });
+  });
+  it("should return a 404 status and error message when user is not found", async () => {
+    const userId = new mongoose.Types.ObjectId();
+
+    const response = await agent.delete(`/api/v1/users/${userId}`);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ message: "User not found" });
+  });
+
+  it("should return a 500 status and error message when an error occurs", async () => {
+    const userId = new mongoose.Types.ObjectId();
+    jest.spyOn(User, "findById").mockReturnValue({ _id: userId });
+    jest.spyOn(User, "findByIdAndDelete").mockImplementation(() => {
+      throw new Error("Database error");
+    });
+
+    const response = await agent.delete(`/api/v1/users/${userId}`);
+
+    expect(response.status).toBe(500);
+    expect(response.body).toEqual({ message: "Database error" });
   });
 });
