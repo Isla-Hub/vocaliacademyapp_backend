@@ -1,4 +1,5 @@
 import express from "express";
+import { param } from "express-validator";
 
 import {
   getAllServices,
@@ -8,12 +9,32 @@ import {
   deleteService,
 } from "../controllers/service.controllers.js";
 
+import handleValidationErrors from "../middlewares/validations/handleValidationErrors.js";
+
+import {
+  createServiceValidation,
+  updateServiceValidation,
+} from "../middlewares/validations/serviceValidations.js";
+
 const router = express.Router();
 
-router.route("/").get(getAllServices);
-router.route("/:id").get(getServiceById);
-router.route("/").post(createService);
-router.route("/:id").put(updateService);
-router.route("/:id").delete(deleteService);
+router
+  .route("/")
+  .get(getAllServices)
+  .post(createServiceValidation, handleValidationErrors, createService);
+
+router
+  .route("/:id")
+  .get(
+    param("id").notEmpty().withMessage("Service ID is required"),
+    handleValidationErrors,
+    getServiceById
+  )
+  .put(updateServiceValidation, handleValidationErrors, updateService)
+  .delete(
+    param("id").notEmpty().withMessage("Service ID is required"),
+    handleValidationErrors,
+    deleteService
+  );
 
 export default router;

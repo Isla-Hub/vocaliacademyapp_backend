@@ -22,17 +22,17 @@ router
   .route("/")
   .get(getAllUsers)
   .post(createUserValidation, handleValidationErrors, createUser);
-  
+
 router
   .route("/:id")
   .get(
-    param("id").notEmpty().withMessage("Id is required"),
+    param("id").notEmpty().withMessage("User ID is required"),
     handleValidationErrors,
     getUserById
   )
   .put(updateUserValidation, handleValidationErrors, updateUser)
   .delete(
-    param("id").notEmpty().withMessage("Id is required"),
+    param("id").notEmpty().withMessage("User ID is required"),
     handleValidationErrors,
     deleteUser
   );
