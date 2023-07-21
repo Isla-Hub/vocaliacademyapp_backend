@@ -1,4 +1,5 @@
 import express from "express";
+import { param } from "express-validator";
 
 import {
   getAllEvents,
@@ -8,12 +9,31 @@ import {
   deleteEvent,
 } from "../controllers/event.controller.js";
 
+import {
+  createEventValidation,
+  updateEventValidation,
+} from "../middlewares/validations/eventValidations.js";
+
+import handleValidationErrors from "../middlewares/validations/handleValidationErrors.js";
+
 const router = express.Router();
 
-router.route("/").get(getAllEvents);
-router.route("/:id").get(getEventById);
-router.route("/").post(createEvent);
-router.route("/:id").put(updateEvent);
-router.route("/:id").delete(deleteEvent);
+router
+  .route("/")
+  .get(getAllEvents)
+  .post(createEventValidation, handleValidationErrors, createEvent);
+router
+  .route("/:id")
+  .get(
+    param("id").notEmpty().withMessage("Event ID is required"),
+    handleValidationErrors,
+    getEventById
+  )
+  .put(updateEventValidation, handleValidationErrors, updateEvent)
+  .delete(
+    param("id").notEmpty().withMessage("Event ID is required"),
+    handleValidationErrors,
+    deleteEvent
+  );
 
 export default router;
