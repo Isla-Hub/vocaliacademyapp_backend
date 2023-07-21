@@ -89,8 +89,17 @@ describe("POST /api/v1/users", () => {
     expect(dbUser.services).toBeInstanceOf(Array);
     expect(dbUser.payments).toBeInstanceOf(Array);
   });
-});
+  test("Create user returns 409 when trying to include an email that is already registered", async () => {
+    const response = await agent
+      .post(`/api/v1/users`)
+      .send({ ...newUser, email: "admin@myapp.com" })
+      .expect(409);
 
+    expect(response.body.message).toBe(
+      "Another user is using the provided email address"
+    );
+  });
+}); 
 describe("GET /api/v1/users", () => {
   it("should return all users", async () => {
     const response = await agent.get("/api/v1/users").expect(200);
@@ -197,7 +206,16 @@ describe("PUT /api/v1/users/:id", () => {
     expect(response.body.services).toBeInstanceOf(Array);
     expect(response.body.payments).toBeInstanceOf(Array);
   });
+  test("Update user returns 409 when trying to update email with already registered email ", async () => {
+    const response = await agent
+      .put(`/api/v1/users/${user._id}`)
+      .send({ ...newUser, email: "admin@myapp.com" })
+      .expect(409);
 
+    expect(response.body.message).toBe(
+      "Another user is using the provided email address"
+    );
+  });
   it("should return a 400 status and error message when given an invalid user ID", async () => {
     const response = await agent
       .put("/api/v1/users/invalid")

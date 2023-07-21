@@ -224,14 +224,5 @@ describe("updateUserValidation", () => {
     }
   });
 
-  test("Update user returns 409 when trying to update email with already registered email ", async () => {
-    const response = await agent
-      .put(`/api/v1/users/${user._id}`)
-      .send({ ...newUser, email: "admin@myapp.com" })
-      .expect(409);
-
-    expect(response.body.message).toBe(
-      "Another user is using the provided email address"
-    );
-  });
+  
 });
