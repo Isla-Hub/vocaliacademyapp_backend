@@ -20,6 +20,11 @@ const getRoomById = async (req, res) => {
 
 const createRoom = async (req, res) => {
   try {
+    const { name } = req.body;
+    const existingRoom = await Room.findOne({ name });
+    if (existingRoom) {
+      return res.status(409).json({ message: "Room name already exists" });
+    }
     const room = await Room.create(req.body);
     res.status(201).json(room);
   } catch (error) {
@@ -29,6 +34,11 @@ const createRoom = async (req, res) => {
 
 const updateRoom = async (req, res) => {
   try {
+    const { name } = req.body;
+    const existingRoom = await Room.findOne({ name });
+    if (existingRoom) {
+      return res.status(409).json({ message: "New room name already exists" });
+    }
     const room = await Room.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });

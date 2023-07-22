@@ -48,6 +48,14 @@ afterAll(async () => {
 });
 
 describe("POST /api/v1/rooms", () => {
+  it("should return an error when trying to create a room with an existing name", async () => {
+    const response = await agent
+      .post("/api/v1/rooms")
+      .send({ ...newRoom, name: room.name }) // Using an existing room name
+      .expect(409);
+
+    expect(response.body.message).toBe("Room name already exists");
+  });
   it("should create a new room", async () => {
     const response = await agent
       .post("/api/v1/rooms")
@@ -112,6 +120,14 @@ describe("GET /api/v1/rooms/:id", () => {
 });
 
 describe("PUT /api/v1/rooms/:id", () => {
+  it("should return an error when trying to update a room with an existing name", async () => {
+    const response = await agent
+      .put(`/api/v1/rooms/${room._id}`)
+      .send({ name: newRoom.name }) // Using an existing room name
+      .expect(409);
+
+    expect(response.body.message).toBe("New room name already exists");
+  });
   it("should update a room", async () => {
     const response = await agent
       .put(`/api/v1/rooms/${room._id}`)
