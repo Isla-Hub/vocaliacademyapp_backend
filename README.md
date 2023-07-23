@@ -38,7 +38,7 @@ To set up the Vocali Academy Backend locally, follow these steps:
 Once the installation is complete, you can run the backend service using the following command:
 
    ```bash
-   npm start
+   npm run start
    ```
 
 This will start the server, and the API will be accessible at **http://localhost:your-port**.
