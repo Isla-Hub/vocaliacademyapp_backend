@@ -325,56 +325,54 @@ describe("createEventValidation", () => {
   });
 });
 
-describe("updateUserValidation", () => {
+describe("updateEventValidation", () => {
   test("Empty string for optional fields returns error", async () => {
     const requiredFields = [
       {
         name: "createdAt",
-        message: "The createdAt field must be a valid ISO8601 date.",
+        message: "The createdAt field cannot be empty.",
       },
       {
         name: "createdBy",
-        message: "The createdBy field must be a valid MongoDB ObjectId.",
+        message: "The createdBy field cannot be empty.",
       },
-      { name: "name", message: "The name field is required." },
-      { name: "date", message: "The date field must be a valid ISO8601 date." },
+      { name: "name", message: "The name field cannot be empty." },
+      { name: "date", message: "The date field cannot be empty." },
       {
         name: "instructedBy",
-        message: "The instructedBy field must be a valid MongoDB ObjectId.",
+        message: "The instructedBy field cannot be empty.",
       },
       {
         name: "room",
-        message: "The room field must be a valid MongoDB ObjectId.",
+        message: "The room field cannot be empty.",
       },
       {
         name: "eventGroupSize",
-        message: "The eventGroupSize field must be a positive integer.",
+        message: "The eventGroupSize field cannot be empty.",
       },
       {
         name: "totalAttended",
-        message: "The totalAttended field must be a positive integer.",
+        message: "The totalAttended field cannot be empty.",
       },
       {
         name: "isPublic",
-        message: "The isPublic field must be a boolean value.",
+        message: "The isPublic field cannot be empty.",
       },
       {
         name: "categories",
-        message:
-          "The categories field must be an array with at least one element.",
+        message: "The categories field cannot be empty.",
       },
       {
         name: "level",
-        message:
-          "The level field must have one of the following values: beginner, intermediate, advanced.",
+        message: "The level field cannot be empty.",
       },
       {
         name: "internalPrice",
-        message: "The internalPrice field must be a positive number.",
+        message: "The internalPrice field cannot be empty.",
       },
       {
         name: "externalPrice",
-        message: "The externalPrice field must be a positive number.",
+        message: "The externalPrice field cannot be empty.",
       },
       {
         name: "internalAtendants",
@@ -398,51 +396,149 @@ describe("updateUserValidation", () => {
       expect(errorMessages).toContain(field.message);
     }
   });
-  test("Validation works correctly for invalid fields", async () => {
+  test("Validation works correctly for invalid event fields", async () => {
     const invalidFields = [
       {
-        name: "password",
-        value: "short",
-        message: "Password must be at least 8 characters long",
-      },
-      { name: "email", value: "invalidemail", message: "Invalid email" },
-      { name: "avatar", value: "invalidavatar", message: "Invalid avatar URL" },
-      {
-        name: "dateOfBirth",
-        value: "invaliddate",
-        message: "Invalid date format",
-      },
-      { name: "role", value: "invalidrole", message: "Invalid role" },
-      {
-        name: "subscribed.newsletter",
-        value: "invalidnewsletter",
-        message: "Newsletter subscription must be a boolean value",
+        name: "createdAt",
+        value: "invalid-date",
+        message: "The createdAt field must be a valid ISO8601 date.",
       },
       {
-        name: "subscribed.notifications",
-        value: "invalidnotifications",
-        message: "Notifications subscription must be a boolean value",
+        name: "createdBy",
+        value: "1234",
+        message: "The createdBy field must be a valid MongoDB ObjectId.",
+      },
+      {
+        name: "name",
+        value: 12345,
+        message: "The name field must be a string.",
+      },
+      {
+        name: "date",
+        value: "invalid-date",
+        message: "The date field must be a valid ISO8601 date.",
+      },
+      {
+        name: "instructedBy",
+        value: "5678",
+        message: "The instructedBy field must be a valid MongoDB ObjectId.",
+      },
+      {
+        name: "room",
+        value: "invalid-id",
+        message: "The room field must be a valid MongoDB ObjectId.",
+      },
+      {
+        name: "eventGroupSize",
+        value: -5,
+        message: "The eventGroupSize field must be a positive integer.",
+      },
+      {
+        name: "totalAttended",
+        value: "not-a-number",
+        message: "The totalAttended field must be a positive integer.",
+      },
+      {
+        name: "isPublic",
+        value: "not-a-boolean",
+        message: "The isPublic field must be a boolean value.",
+      },
+      {
+        name: "categories",
+        value: "not-an-array",
+        message:
+          "The categories field must be an array with at least one element.",
+      },
+      {
+        name: "level",
+        value: "invalid-level",
+        message:
+          "The level field must have one of the following values: beginner, intermediate, advanced.",
+      },
+      {
+        name: "internalPrice",
+        value: -10,
+        message: "The internalPrice field must be a positive number.",
+      },
+      {
+        name: "externalPrice",
+        value: "not-a-number",
+        message: "The externalPrice field must be a positive number.",
+      },
+      {
+        name: "internalAtendants",
+        value: "not-an-array",
+        message: "The internalAtendants field must be an array.",
+      },
+      {
+        name: "internalAtendants.*",
+        value: "invalid-id",
+        message:
+          "Each element of internalAtendants must be a valid MongoDB ObjectId.",
+      },
+      {
+        name: "externalAtendants",
+        value: "not-an-array",
+        message: "The externalAtendants field must be an array.",
+      },
+      {
+        name: "externalAtendants.*.name",
+        value: 12345,
+        message: "The name field must be a string.",
+      },
+      {
+        name: "externalAtendants.*.lastName",
+        value: 67890,
+        message: "The lastName field must be a string.",
+      },
+      {
+        name: "externalAtendants.*.email",
+        value: "invalid-email",
+        message:
+          "The email field must be a valid email address for each element of externalAtendants.",
+      },
+      {
+        name: "externalAtendants.*.phoneNumber",
+        value: 12345,
+        message: "The phoneNumber field must be a string.",
       },
     ];
 
-    const body = {
-      name: "TestUserUpdate",
-      lastName: "TestUserUpdate LastName",
-      email: "testuserupdate@example.com",
-      phoneNumber: "1234567890",
-      dateOfBirth: new Date(),
-      role: "admin",
-      password: "test1234",
+    const requestEvent = {
+      _id: event._id,
+      createdAt: "2023-07-23T14:00:00Z",
+      createdBy: admin._id,
+      name: "Test Event",
+      date: "2023-08-01T15:00:00Z",
+      instructedBy: instructor._id,
+      room: room._id,
+      eventGroupSize: 20,
+      totalAttended: 15,
+      isPublic: true,
+      categories: ["workshop", "fitness"],
+      level: "beginner",
+      internalPrice: 50.0,
+      externalPrice: 100.0,
+      internalAtendants: [student._id],
+      externalAtendants: [
+        {
+          name: "John",
+          lastName: "Doe",
+          email: "john.doe@example.com",
+          phoneNumber: "1234567890",
+        },
+      ],
     };
+
     for (const field of invalidFields) {
-      const requestBody = { ...body, [field.name]: field.value };
+      const requestBody = { ...requestEvent, [field.name]: field.value };
       const response = await agent
-        .put(`/api/v1/users/${user._id}`)
+        .put(`/api/v1/events/${event._id}`)
         .send(requestBody)
         .expect(400);
-      expect(
-        response.body.errors.some((error) => error.msg === field.message)
-      ).toBe(true);
+      const errorMessages = response.body.errors.map((error) => error.msg);
+
+      expect(errorMessages).toContain(field.message);
     }
   });
   test("Validation works correctly for valid fields", async () => {
