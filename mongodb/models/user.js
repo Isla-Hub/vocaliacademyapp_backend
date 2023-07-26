@@ -48,6 +48,10 @@ const UserSchema = new mongoose.Schema({
       default: true,
     },
   },
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
   services: [{ type: mongoose.Schema.Types.ObjectId, ref: "Service" }],
   payments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Payment" }],
 });

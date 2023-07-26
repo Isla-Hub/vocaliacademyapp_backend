@@ -13,7 +13,6 @@ const app = createServer();
 
 describe("Auth controller", () => {
   let userLogin;
-  let userRegister;
   let hashedPassword;
 
   beforeAll(async () => {
@@ -34,16 +33,6 @@ describe("Auth controller", () => {
       dateOfBirth: new Date(),
       role: "student",
     });
-    userRegister = {
-      email: "userauthregister@test.com",
-      password: "password123",
-      role: "user",
-      name: "UserAuthRegister",
-      lastName: "UserAuthRegister LastName",
-      phoneNumber: "1234567890",
-      dateOfBirth: new Date(),
-      role: "student",
-    };
   });
 
   afterEach(() => {
@@ -52,7 +41,7 @@ describe("Auth controller", () => {
 
   afterAll(async () => {
     await User.deleteMany({
-      email: { $in: ["userauthlogin@test.com", "userauthregister@test.com"] },
+      email: { $in: ["userauthlogin@test.com"] },
     });
     await mongoose.connection.close();
   });
@@ -116,7 +105,14 @@ describe("Auth controller", () => {
       expect(decodedToken.userId).toEqual(userLogin._id.toString());
       expect(decodedToken.role).toEqual(userLogin.role);
     });
-
+    test("should return 401 if user account is deactivated", async () => {
+      await User.updateOne({ _id: userLogin._id }, { isActive: false });
+      const res = await request(app)
+        .post("/api/v1/auth/login")
+        .send({ email: userLogin.email, password: "password123" });
+      expect(res.statusCode).toEqual(401);
+      expect(res.body.message).toEqual("User account is deactivated");
+    });
     test("should return 500 if an error occurs", async () => {
       jest
         .spyOn(User, "findOne")
