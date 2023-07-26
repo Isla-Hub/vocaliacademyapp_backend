@@ -29,15 +29,10 @@ const createRoom = async (req, res) => {
 
 const updateRoom = async (req, res) => {
   try {
-    const { id } = req.params;
+    console.log("params", req.params);
 
-    console.log("id del conroller", id);
-    if (!mongoose.isValidObjectId(id)) {
-      console.log("cucu");
-      return res.status(400).json({ message: "Invalid room ID" });
-    }
-
-    const paramRoom = await Room.findById(id);
+    console.log("NEXT");
+    /*const paramRoom = await Room.findById(req.params);
     console.log("paramRoom", paramRoom);
     if (!paramRoom) {
       return res.status(404).json({ message: "Room not found" });
@@ -48,11 +43,12 @@ const updateRoom = async (req, res) => {
       return res.status(409).json({
         message: "Another room is using the provided name",
       });
-    }
+    }*/
     const room = await Room.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
     });
+    console.log("ROOOM", room);
     res.status(200).json(room);
   } catch (error) {
     res.status(404).json({ message: error.message });

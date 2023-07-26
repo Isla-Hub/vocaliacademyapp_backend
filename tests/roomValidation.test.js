@@ -54,7 +54,7 @@ beforeAll(async () => {
     createdBy: user._id,
   });
 
-  newRoom.createdBy = room.createdBy;
+  newRoom.createdBy = user._id;
 
   agent = await getAuthenticatedAgent(app);
 });
@@ -111,6 +111,7 @@ describe("createRoomValidation", () => {
       { name: "features", value: newRoom.features },
     ];
     const requestBody = newRoom;
+
     const response = await agent
       .post("/api/v1/rooms")
       .send(requestBody)
@@ -169,19 +170,16 @@ describe("updateRoomValidation", () => {
   test("Validation works correctly for valid fields", async () => {
     let validFields = [
       { name: "name", value: newRoom.name },
-      { name: "createdBy", value: newRoom.createdBy.toString() },
+      { name: "createdBy", value: newRoom.createdBy },
       { name: "features", value: newRoom.features },
     ];
     const requestBody = {
       ...newRoom,
-      name: "RoomUpdate",
-      features: ["featureA", "featureB"],
     };
 
-    const response = await agent
-      .put(`/api/v1/rooms/${room._id}`)
-      .send(requestBody)
-      .expect(200);
+    const ep = "/api/v1/rooms/" + room._id;
+
+    const response = await agent.put(ep).send(requestBody).expect(200);
 
     for (const field of validFields) {
       expect(response.body[field.name].toString()).toBe(field.value.toString());
