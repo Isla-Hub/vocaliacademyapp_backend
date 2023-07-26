@@ -20,6 +20,9 @@ const login = async (req, res) => {
     if (!passwordMatches) {
       return res.status(400).json({ message: "Invalid password" });
     }
+    if(!user.isActive) {
+      return res.status(401).json({ message: "User account is deactivated" });
+    }
     const token = generateAccessToken({ userId: user._id, role: user.role });
     return res.status(200).json({ token });
   } catch (error) {

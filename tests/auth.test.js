@@ -106,7 +106,14 @@ describe("Auth controller", () => {
       expect(decodedToken.userId).toEqual(userLogin._id.toString());
       expect(decodedToken.role).toEqual(userLogin.role);
     });
-
+    test("should return 401 if user account is deactivated", async () => {
+      await User.updateOne({ _id: userLogin._id }, { isActive: false });
+      const res = await request(app)
+        .post("/api/v1/auth/login")
+        .send({ email: userLogin.email, password: "password123" });
+      expect(res.statusCode).toEqual(401);
+      expect(res.body.message).toEqual("User account is deactivated");
+    });
     test("should return 500 if an error occurs", async () => {
       jest
         .spyOn(User, "findOne")
