@@ -1,6 +1,9 @@
 import express from "express";
 import { param } from "express-validator";
 
+import rolesAction from "../rolesAction";
+import canPerformAction from "../middlewares/canPerformAction";
+
 import {
   getAllUsers,
   getUserById,
