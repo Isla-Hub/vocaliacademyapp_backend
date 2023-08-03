@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 
 const getAllUsers = async (req, res) => {
   try {
+    console.log("users");
     const users = await User.find();
     res.status(200).json(users);
   } catch (error) {
@@ -38,7 +39,6 @@ const createUser = async (req, res) => {
         message: "Another user is using the provided email address",
       });
     }
-
 
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const user = await User.create({ ...req.body, password: hashedPassword });

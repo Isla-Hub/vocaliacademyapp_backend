@@ -18,7 +18,7 @@ let newUser = {
   avatar:
     "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
   dateOfBirth: new Date(),
-  role: "student",
+  role: "admin",
   password: "test1234",
 };
 
@@ -99,7 +99,7 @@ describe("POST /api/v1/users", () => {
       "Another user is using the provided email address"
     );
   });
-}); 
+});
 describe("GET /api/v1/users", () => {
   it("should return all users", async () => {
     const response = await agent.get("/api/v1/users").expect(200);

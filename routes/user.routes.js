@@ -1,8 +1,8 @@
 import express from "express";
 import { param } from "express-validator";
-
-import rolesAction from "../rolesAction";
-import canPerformAction from "../middlewares/canPerformAction";
+import { rolesAction } from "../rolesAction.js";
+import canPerformAction from "../middlewares/canPerformAction.js";
+import { authenticateToken } from "../middlewares/jwt.js";
 
 import {
   getAllUsers,
@@ -23,18 +23,33 @@ const router = express.Router();
 
 router
   .route("/")
-  .get(getAllUsers)
-  .post(createUserValidation, handleValidationErrors, createUser);
+  .get(
+    canPerformAction([rolesAction.admin, rolesAction.instructor]),
+    getAllUsers
+  )
+  .post(
+    canPerformAction([rolesAction.admin]),
+    createUserValidation,
+    handleValidationErrors,
+    createUser
+  );
 
 router
   .route("/:id")
   .get(
+    canPerformAction([rolesAction.admin, rolesAction.instructor]),
     param("id").notEmpty().withMessage("User ID is required"),
     handleValidationErrors,
     getUserById
   )
-  .put(updateUserValidation, handleValidationErrors, updateUser)
+  .put(
+    canPerformAction([rolesAction.admin]),
+    updateUserValidation,
+    handleValidationErrors,
+    updateUser
+  )
   .delete(
+    canPerformAction([rolesAction.admin]),
     param("id").notEmpty().withMessage("User ID is required"),
     handleValidationErrors,
     deleteUser
