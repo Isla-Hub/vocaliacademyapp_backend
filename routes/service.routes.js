@@ -1,5 +1,7 @@
 import express from "express";
 import { param } from "express-validator";
+import canPerformAction from "../middlewares/canPerformAction.js";
+import { rolesAction } from "../rolesAction.js";
 
 import {
   getAllServices,
@@ -20,18 +22,34 @@ const router = express.Router();
 
 router
   .route("/")
-  .get(getAllServices)
-  .post(createServiceValidation, handleValidationErrors, createService);
+  .get(canPerformAction([rolesAction.admin]), getAllServices)
+  .post(
+    canPerformAction([rolesAction.admin]),
+    createServiceValidation,
+    handleValidationErrors,
+    createService
+  );
 
 router
   .route("/:id")
   .get(
+    canPerformAction([
+      rolesAction.admin,
+      rolesAction.instructor,
+      rolesAction.student,
+    ]),
     param("id").notEmpty().withMessage("Service ID is required"),
     handleValidationErrors,
     getServiceById
   )
-  .put(updateServiceValidation, handleValidationErrors, updateService)
+  .put(
+    canPerformAction([rolesAction.admin]),
+    updateServiceValidation,
+    handleValidationErrors,
+    updateService
+  )
   .delete(
+    canPerformAction([rolesAction.admin]),
     param("id").notEmpty().withMessage("Service ID is required"),
     handleValidationErrors,
     deleteService
