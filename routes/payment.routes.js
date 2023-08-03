@@ -1,4 +1,6 @@
 import express from "express";
+import canPerformAction from "../middlewares/canPerformAction.js";
+import { rolesAction } from "../rolesAction.js";
 
 import {
   getAllPayments,
@@ -10,10 +12,22 @@ import {
 
 const router = express.Router();
 
-router.route("/").get(getAllPayments);
-router.route("/:id").get(getPaymentById);
-router.route("/").post(createPayment);
-router.route("/:id").put(updatePayment);
-router.route("/:id").delete(deletePayment);
+router.route("/").get(canPerformAction([rolesAction.admin]), getAllPayments);
+router
+  .route("/:id")
+  .get(
+    canPerformAction([rolesAction.admin, rolesAction.student]),
+    getPaymentById
+  );
+router
+  .route("/")
+  .post(
+    canPerformAction([rolesAction.admin, rolesAction.student]),
+    createPayment
+  );
+router.route("/:id").put(canPerformAction([rolesAction.admin]), updatePayment);
+router
+  .route("/:id")
+  .delete(canPerformAction([rolesAction.admin]), deletePayment);
 
 export default router;

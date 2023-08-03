@@ -1,4 +1,6 @@
 import express from "express";
+import canPerformAction from "../middlewares/canPerformAction.js";
+import { rolesAction } from "../rolesAction.js";
 
 import {
   getAllRooms,
@@ -10,10 +12,28 @@ import {
 
 const router = express.Router();
 
-router.route("/").get(getAllRooms);
-router.route("/:id").get(getRoomById);
-router.route("/").post(createRoom);
-router.route("/:id").put(updateRoom);
-router.route("/:id").delete(deleteRoom);
+router
+  .route("/")
+  .get(
+    canPerformAction([
+      rolesAction.admin,
+      rolesAction.instructor,
+      rolesAction.student,
+    ]),
+    getAllRooms
+  );
+router
+  .route("/:id")
+  .get(
+    canPerformAction([
+      rolesAction.admin,
+      rolesAction.instructor,
+      rolesAction.student,
+    ]),
+    getRoomById
+  );
+router.route("/").post(canPerformAction([rolesAction.admin]), createRoom);
+router.route("/:id").put(canPerformAction([rolesAction.admin]), updateRoom);
+router.route("/:id").delete(canPerformAction([rolesAction.admin]), deleteRoom);
 
 export default router;
