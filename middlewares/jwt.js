@@ -8,8 +8,12 @@ function generateAccessToken(data) {
 }
 
 function authenticateToken(req, res, next) {
-  const token = req.headers["authorization"];
-  // const token = authHeader && authHeader.split(" ")[1];
+  //test
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  //postman
+  // const token = req.headers["authorization"];
 
   if (token == null) return res.sendStatus(401);
 

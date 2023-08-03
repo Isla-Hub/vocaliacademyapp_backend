@@ -7,6 +7,8 @@ async function getAuthenticatedAgent(app) {
     .send({ email: "admin@myapp.com", password: "test1234" });
 
   agent.set("Authorization", `Bearer ${res.body.token}`);
+  console.log("1111111111111111111111111111111", res.body.token);
+
   return agent;
 }
 
