@@ -20,6 +20,11 @@ const getRoomById = async (req, res) => {
 
 const createRoom = async (req, res) => {
   try {
+    const { name } = req.body;
+    const existingRoom = await Room.findOne({ name });
+    if (existingRoom) {
+      return res.status(409).json({ message: "Room name already exists" });
+    }
     const room = await Room.create(req.body);
     res.status(201).json(room);
   } catch (error) {
@@ -29,6 +34,7 @@ const createRoom = async (req, res) => {
 
 const updateRoom = async (req, res) => {
   try {
+<<<<<<< HEAD
     console.log("params", req.params);
 
     console.log("NEXT");
@@ -44,6 +50,13 @@ const updateRoom = async (req, res) => {
         message: "Another room is using the provided name",
       });
     }*/
+=======
+    const { name } = req.body;
+    const existingRoom = await Room.findOne({ name });
+    if (existingRoom) {
+      return res.status(409).json({ message: "New room name already exists" });
+    }
+>>>>>>> c68fb2e8f248787c705fc7a3eed4ee98f97c6951
     const room = await Room.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
