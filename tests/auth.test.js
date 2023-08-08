@@ -33,7 +33,6 @@ describe("Auth controller", () => {
       dateOfBirth: new Date(),
       role: "student",
     });
-    
   });
 
   afterEach(() => {
@@ -144,6 +143,4 @@ describe("Auth controller", () => {
       expect(response.statusCode).toEqual(401);
     });
   });
-
-
 });

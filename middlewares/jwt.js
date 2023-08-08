@@ -8,13 +8,16 @@ function generateAccessToken(data) {
 }
 
 function authenticateToken(req, res, next) {
+  //test
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
+
+  //postman
+  // const token = req.headers["authorization"];
 
   if (token == null) return res.sendStatus(401);
 
   jwt.verify(token, process.env.JWT_SECRET, (err, data) => {
-
     if (err) return res.sendStatus(403);
 
     req.userId = data.userId;

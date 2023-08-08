@@ -1,4 +1,6 @@
 import express from "express";
+import canPerformAction from "../middlewares/canPerformAction.js";
+import { rolesAction } from "../rolesAction.js";
 
 import {
   getAllEvents,
@@ -10,10 +12,28 @@ import {
 
 const router = express.Router();
 
-router.route("/").get(getAllEvents);
-router.route("/:id").get(getEventById);
-router.route("/").post(createEvent);
-router.route("/:id").put(updateEvent);
-router.route("/:id").delete(deleteEvent);
+router
+  .route("/")
+  .get(
+    canPerformAction([
+      rolesAction.admin,
+      rolesAction.instructor,
+      rolesAction.student,
+    ]),
+    getAllEvents
+  );
+router
+  .route("/:id")
+  .get(
+    canPerformAction([
+      rolesAction.admin,
+      rolesAction.instructor,
+      rolesAction.student,
+    ]),
+    getEventById
+  );
+router.route("/").post(canPerformAction([rolesAction.admin]), createEvent);
+router.route("/:id").put(canPerformAction([rolesAction.admin]), updateEvent);
+router.route("/:id").delete(canPerformAction([rolesAction.admin]), deleteEvent);
 
 export default router;
