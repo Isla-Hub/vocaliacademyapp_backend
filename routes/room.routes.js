@@ -1,6 +1,7 @@
 import express from "express";
-import canPerformAction from "../middlewares/canPerformAction.js";
+import { params } from "express-validator";
 import { rolesAction } from "../rolesAction.js";
+import canPerformAction from "../middlewares/canPerformAction.js";
 
 import {
   getAllRooms,
@@ -9,6 +10,12 @@ import {
   updateRoom,
   deleteRoom,
 } from "../controllers/room.controller.js";
+
+import {
+  createRoomValidation,
+  updateRoomValidation,
+} from "../middlewares/validations/roomValidations.js";
+import handleValidationErrors from "../middlewares/validations/handleValidationErrors.js";
 
 const router = express.Router();
 
@@ -32,8 +39,22 @@ router
     ]),
     getRoomById
   );
-router.route("/").post(canPerformAction([rolesAction.admin]), createRoom);
-router.route("/:id").put(canPerformAction([rolesAction.admin]), updateRoom);
+router
+  .route("/")
+  .post(
+    canPerformAction([rolesAction.admin]),
+    createRoomValidation,
+    handleValidationErrors,
+    createRoom
+  );
+router
+  .route("/:id")
+  .put(
+    canPerformAction([rolesAction.admin]),
+    updateRoomValidation,
+    handleValidationErrors,
+    updateRoom
+  );
 router.route("/:id").delete(canPerformAction([rolesAction.admin]), deleteRoom);
 
 export default router;
