@@ -1,6 +1,7 @@
 import User from "../mongodb/models/user.js";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
+import { filterSensitiveData } from "../middlewares/utils.js"
 
 const getAllUsers = async (req, res) => {
   try {
@@ -22,7 +23,8 @@ const getUserById = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json(user);
+    const userWithoutPassword = filterSensitiveData(user);
+    res.status(200).json(userWithoutPassword);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -41,7 +43,7 @@ const createUser = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const user = await User.create({ ...req.body, password: hashedPassword });
-    const { password: _, ...userWithoutPassword } = user._doc;
+    const userWithoutPassword = filterSensitiveData(user);
     res.status(201).json(userWithoutPassword);
   } catch (error) {
     if (error.code === 11000) {
@@ -74,7 +76,7 @@ const updateUser = async (req, res) => {
       new: true,
       runValidators: true,
     });
-    const { password: _, ...userWithoutPassword } = user._doc;
+    const userWithoutPassword = filterSensitiveData(user);
     res.status(200).json(userWithoutPassword);
   } catch (error) {
     res.status(500).json({ message: error.message });
