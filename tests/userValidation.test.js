@@ -1,8 +1,8 @@
 import createServer from "../server";
 import User from "../mongodb/models/user";
-import mongoose from "mongoose";
 import * as dotenv from "dotenv";
 import { getAuthenticatedAgent } from "./utils/authentication";
+import { clear, close, connect } from "./config/db";
 
 dotenv.config();
 
@@ -25,11 +25,7 @@ let newUser = {
 let user;
 
 beforeAll(async () => {
-  mongoose.set("strictQuery", true);
-  mongoose.connect(process.env.MONGODB_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  await connect();
   user = await User.create({
     name: "TestUserUpdate",
     lastName: "TestUserUpdate LastName",
@@ -39,11 +35,13 @@ beforeAll(async () => {
     role: "admin",
     password: "test1234",
   });
+  await user.save();
   agent = await getAuthenticatedAgent(app);
 });
 
 afterAll(async () => {
-  await mongoose.connection.close();
+  await clear();
+  await close();
 });
 
 describe("createUserValidation", () => {
@@ -223,6 +221,4 @@ describe("updateUserValidation", () => {
       expect(response.body[field.name].toString()).toBe(field.value.toString());
     }
   });
-
-  
 });

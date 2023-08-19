@@ -1,7 +1,3 @@
-import {
-  createServiceValidation,
-  updateServiceValidation,
-} from "../middlewares/validations/serviceValidations.js";
 import createServer from "../server";
 
 import User from "../mongodb/models/user";
@@ -10,6 +6,7 @@ import mongoose from "mongoose";
 
 import * as dotenv from "dotenv";
 import { getAuthenticatedAgent } from "./utils/authentication";
+import { clear, close, connect } from "./config/db";
 
 dotenv.config();
 
@@ -30,12 +27,7 @@ let instructor;
 let service;
 
 beforeAll(async () => {
-  mongoose.set("strictQuery", true);
-
-  mongoose.connect(process.env.MONGODB_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  await connect();
 
   admin = await User.create({
     name: "AdminServiceValidation",
@@ -47,6 +39,8 @@ beforeAll(async () => {
     password: "test1234",
   });
 
+  await admin.save();
+
   instructor = await User.create({
     name: "InstructorServiceValidation",
     lastName: "InstructorServiceValidation LastName",
@@ -57,6 +51,8 @@ beforeAll(async () => {
     password: "test1234",
   });
 
+  await instructor.save();
+
   service = await Service.create({
     name: "TestServiceValdiation",
     createdBy: admin._id,
@@ -66,13 +62,16 @@ beforeAll(async () => {
     instructedBy: instructor._id,
     groupSize: 10,
   });
+
+  await service.save();
   newService.createdBy = admin._id;
   newService.instructedBy = instructor._id;
   agent = await getAuthenticatedAgent(app);
 });
 
 afterAll(async () => {
-  await mongoose.connection.close();
+  await clear();
+  await close();
 });
 
 describe("createServiceValidation", () => {
