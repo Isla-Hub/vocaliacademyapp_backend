@@ -1,9 +1,9 @@
 import createServer from "../server";
 import User from "../mongodb/models/user";
 import Room from "../mongodb/models/room";
-import mongoose from "mongoose";
 import * as dotenv from "dotenv";
 import { getAuthenticatedAgent } from "./utils/authentication.js";
+import { clear, close, connect } from "./config/db";
 
 dotenv.config();
 
@@ -20,11 +20,7 @@ let admin;
 let room;
 
 beforeAll(async () => {
-  mongoose.set("strictQuery", true);
-  mongoose.connect(process.env.MONGODB_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  await connect();
   admin = await User.create({
     name: "UserRoom",
     lastName: "UserRoom LastName",
@@ -34,17 +30,20 @@ beforeAll(async () => {
     role: "admin",
     password: "test1234",
   });
+  await admin.save();
   room = await Room.create({
     name: "TestRoom",
     features: ["test feature 1", "test feature 2"],
     createdBy: admin._id,
   });
+  await room.save();
   newRoom.createdBy = admin._id;
   agent = await getAuthenticatedAgent(app);
 });
 
 afterAll(async () => {
-  await mongoose.connection.close();
+  await clear();
+  await close();
 });
 
 describe("POST /api/v1/rooms", () => {
