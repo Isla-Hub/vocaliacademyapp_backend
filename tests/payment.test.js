@@ -4,10 +4,10 @@ import Payment from "../mongodb/models/payment";
 import Event from "../mongodb/models/event";
 import Service from "../mongodb/models/service";
 import Room from "../mongodb/models/room";
-import mongoose from "mongoose";
 
 import * as dotenv from "dotenv";
 import { getAuthenticatedAgent } from "./utils/authentication";
+import { clear, close, connect } from "./config/db";
 
 dotenv.config();
 
@@ -32,11 +32,7 @@ let paymentEvent;
 let paymentService;
 
 beforeAll(async () => {
-  mongoose.set("strictQuery", true);
-  mongoose.connect(process.env.MONGODB_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  await connect();
 
   admin = await User.create({
     name: "AdminPayment",
@@ -47,6 +43,7 @@ beforeAll(async () => {
     role: "admin",
     password: "test1234",
   });
+  await admin.save();
 
   instructor = await User.create({
     name: "InstructorPayment",
@@ -57,6 +54,7 @@ beforeAll(async () => {
     role: "instructor",
     password: "test1234",
   });
+  await instructor.save();
 
   student = await User.create({
     name: "StudentPayment",
@@ -67,12 +65,15 @@ beforeAll(async () => {
     role: "student",
     password: "test1234",
   });
+  await student.save();
 
   room = await Room.create({
     name: "RoomPayment",
     createdBy: admin._id,
     features: ["mirrors", "speakers"],
   });
+
+  await room.save();
 
   service = await Service.create({
     name: "ServicePayment",
@@ -83,6 +84,8 @@ beforeAll(async () => {
     createdBy: admin._id,
     instructedBy: instructor._id,
   });
+
+  await service.save();
 
   event = await Event.create({
     name: "TestEvent",
@@ -98,12 +101,16 @@ beforeAll(async () => {
     externalPrice: 30,
   });
 
+  await event.save();
+
   paymentService = await Payment.create({
     productModel: "Service",
     paidBy: student._id,
     product: service._id,
     createdBy: admin._id,
   });
+
+  await paymentService.save();
 
   paymentEvent = await Payment.create({
     productModel: "Event",
@@ -112,18 +119,21 @@ beforeAll(async () => {
     createdBy: admin._id,
   });
 
-  (newPaymentService.paidBy = student._id),
-    (newPaymentService.product = service._id),
-    (newPaymentService.createdBy = admin._id),
-    (newPaymentEvent.paidBy = student._id),
-    (newPaymentEvent.product = event._id),
-    (newPaymentEvent.createdBy = admin._id);
+  await paymentEvent.save();
+
+  newPaymentService.paidBy = student._id;
+  newPaymentService.product = service._id;
+  newPaymentService.createdBy = admin._id;
+  newPaymentEvent.paidBy = student._id;
+  newPaymentEvent.product = event._id;
+  newPaymentEvent.createdBy = admin._id;
 
   agent = await getAuthenticatedAgent(app);
 });
 
 afterAll(async () => {
-  await mongoose.connection.close();
+  await clear();
+  await close();
 });
 
 describe("POST /api/v1/payments", () => {

@@ -1,8 +1,9 @@
 import createServer from "../server";
 import User from "../mongodb/models/user";
-import mongoose from "mongoose";
 import * as dotenv from "dotenv";
 import { getAuthenticatedAgent } from "./utils/authentication";
+import { clear, close, connect } from "./config/db";
+import mongoose from "mongoose";
 
 dotenv.config();
 
@@ -25,11 +26,7 @@ let newUser = {
 let user;
 
 beforeAll(async () => {
-  mongoose.set("strictQuery", true);
-  mongoose.connect(process.env.MONGODB_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  await connect();
   user = await User.create({
     name: "TestUser",
     lastName: "TestUser LastName",
@@ -47,7 +44,8 @@ beforeEach(() => {
 });
 
 afterAll(async () => {
-  await mongoose.connection.close();
+  await clear();
+  await close();
 });
 
 describe("POST /api/v1/users", () => {
