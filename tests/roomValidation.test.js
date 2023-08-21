@@ -1,15 +1,11 @@
-import {
-  createRoomValidation,
-  updateRoomValidation,
-} from "../middlewares/validations/roomValidations.js";
 import createServer from "../server.js";
 
 import User from "../mongodb/models/user.js";
 import Room from "../mongodb/models/room.js";
-import mongoose from "mongoose";
 
 import * as dotenv from "dotenv";
 import { getAuthenticatedAgent } from "./utils/authentication.js";
+import { clear, close, connect } from "./config/db";
 
 dotenv.config();
 
@@ -26,12 +22,7 @@ let admin;
 let room;
 
 beforeAll(async () => {
-  mongoose.set("strictQuery", true);
-
-  mongoose.connect(process.env.MONGODB_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  await connect();
 
   admin = await User.create({
     name: "AdminRoomValidation",
@@ -43,6 +34,8 @@ beforeAll(async () => {
     password: "test1234",
   });
 
+  await admin.save();
+
   room = await Room.create({
     name: "TestRoomValdiation",
     createdBy: admin._id,
@@ -50,11 +43,14 @@ beforeAll(async () => {
   });
   newRoom.createdBy = admin._id;
 
+  await room.save();
+
   agent = await getAuthenticatedAgent(app);
 });
 
 afterAll(async () => {
-  await mongoose.connection.close();
+  await clear();
+  await close();
 });
 
 describe("createRoomValidation", () => {
