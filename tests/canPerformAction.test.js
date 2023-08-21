@@ -1,11 +1,11 @@
 import createServer from "../server";
 import User from "../mongodb/models/user";
-import mongoose from "mongoose";
 import * as dotenv from "dotenv";
 import {
   getAuthenticatedAgent,
   getAuthenticatedStudentUser,
 } from "./utils/authentication";
+import { connect, clear, close } from "./config/db";
 
 dotenv.config();
 
@@ -18,11 +18,7 @@ let userWithInvalidRole;
 let user;
 
 beforeAll(async () => {
-  mongoose.set("strictQuery", true);
-  mongoose.connect(process.env.MONGODB_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  await connect();
 
   user = await User.create({
     name: "TestUser",
@@ -34,6 +30,8 @@ beforeAll(async () => {
     password: "test1234",
   });
 
+  await user.save();
+
   userWithValidRole = await getAuthenticatedAgent(app);
 
   userWithInvalidRole = await getAuthenticatedStudentUser(app);
@@ -44,7 +42,8 @@ beforeEach(() => {
 });
 
 afterAll(async () => {
-  await mongoose.connection.close();
+  await clear();
+  await close();
 });
 
 describe("GET /api/v1/users", () => {
