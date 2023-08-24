@@ -5,6 +5,7 @@ import Event from "../mongodb/models/event";
 import mongoose from "mongoose";
 import * as dotenv from "dotenv";
 import { getAuthenticatedAgent } from "./utils/authentication";
+import { connect, clear, close } from "./config/db";
 
 dotenv.config();
 
@@ -27,11 +28,7 @@ let room;
 let event;
 
 beforeAll(async () => {
-  mongoose.set("strictQuery", true);
-  mongoose.connect(process.env.MONGODB_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  await connect();
   instructor = await User.create({
     name: "InstructorEventValidation",
     lastName: "IntructorEventValidation LastName",
@@ -41,6 +38,7 @@ beforeAll(async () => {
     role: "instructor",
     password: "test1234",
   });
+  await instructor.save();
   admin = await User.create({
     name: "AdminEventValidation",
     lastName: "AdminEventValidation LastName",
@@ -50,7 +48,7 @@ beforeAll(async () => {
     role: "admin",
     password: "test1234",
   });
-
+  await admin.save();
   student = await User.create({
     name: "UserEventValidation",
     lastName: "UserEventValidation LastName",
@@ -60,12 +58,13 @@ beforeAll(async () => {
     role: "student",
     password: "test1234",
   });
-
+  await student.save();
   room = await Room.create({
     name: "RoomEventValidation",
     features: ["mirrors", "speakers"],
     createdBy: admin._id,
   });
+  await room.save();
   event = await Event.create({
     name: "TestEventValidation",
     date: new Date(),
@@ -79,6 +78,7 @@ beforeAll(async () => {
     internalPrice: 20,
     externalPrice: 30,
   });
+  await event.save();
   newEvent.instructedBy = instructor._id;
   newEvent.room = room._id;
   newEvent.createdBy = admin._id;
@@ -87,7 +87,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await mongoose.connection.close();
+  await clear();
+  await close();
 });
 
 describe("createEventValidation", () => {
@@ -530,10 +531,12 @@ describe("updateEventValidation", () => {
       ],
     };
 
+    const response1 = await agent.get("/api/v1/events/");
+
     for (const field of invalidFields) {
       const requestBody = { ...requestEvent, [field.name]: field.value };
       const response = await agent
-        .put(`/api/v1/events/${event._id}`)
+        .put(`/api/v1/events/${event._id.toString()}`)
         .send(requestBody)
         .expect(400);
       const errorMessages = response.body.errors.map((error) => error.msg);
