@@ -27,24 +27,24 @@ router
     rolesAction.instructor,
     rolesAction.student,
   ]), getAllEvents)
-  .post(canPerformAction([rolesAction.admin]), createEventValidation, handleValidationErrors, createEvent);
+  .post(createEventValidation, handleValidationErrors, canPerformAction([rolesAction.admin]), createEvent);
 router
   .route("/:id")
   .get(
+    param("id").notEmpty().withMessage("Event ID is required"),
+    handleValidationErrors,
     canPerformAction([
       rolesAction.admin,
       rolesAction.instructor,
       rolesAction.student,
     ]),
-    param("id").notEmpty().withMessage("Event ID is required"),
-    handleValidationErrors,
     getEventById
   )
-  .put(canPerformAction([rolesAction.admin]), updateEventValidation, handleValidationErrors, updateEvent)
+  .put(updateEventValidation, handleValidationErrors, canPerformAction([rolesAction.admin]), updateEvent)
   .delete(
     param("id").notEmpty().withMessage("Event ID is required"),
     handleValidationErrors,
-    canPerformAction([rolesAction.admin])
+    canPerformAction([rolesAction.admin]),
     deleteEvent
   );
 
