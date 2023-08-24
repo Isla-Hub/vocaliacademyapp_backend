@@ -1,8 +1,9 @@
 import createServer from "../server";
 import User from "../mongodb/models/user";
-import mongoose from "mongoose";
 import * as dotenv from "dotenv";
 import { getAuthenticatedAgent } from "./utils/authentication";
+import { clear, close, connect } from "./config/db";
+import mongoose from "mongoose";
 
 dotenv.config();
 
@@ -18,18 +19,14 @@ let newUser = {
   avatar:
     "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
   dateOfBirth: new Date(),
-  role: "student",
+  role: "admin",
   password: "test1234",
 };
 
 let user;
 
 beforeAll(async () => {
-  mongoose.set("strictQuery", true);
-  mongoose.connect(process.env.MONGODB_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  await connect();
   user = await User.create({
     name: "TestUser",
     lastName: "TestUser LastName",
@@ -47,7 +44,8 @@ beforeEach(() => {
 });
 
 afterAll(async () => {
-  await mongoose.connection.close();
+  await clear();
+  await close();
 });
 
 describe("POST /api/v1/users", () => {
@@ -89,8 +87,17 @@ describe("POST /api/v1/users", () => {
     expect(dbUser.services).toBeInstanceOf(Array);
     expect(dbUser.payments).toBeInstanceOf(Array);
   });
-});
+  test("Create user returns 409 when trying to include an email that is already registered", async () => {
+    const response = await agent
+      .post(`/api/v1/users`)
+      .send({ ...newUser, email: "admin@myapp.com" })
+      .expect(409);
 
+    expect(response.body.message).toBe(
+      "Another user is using the provided email address"
+    );
+  });
+});
 describe("GET /api/v1/users", () => {
   it("should return all users", async () => {
     const response = await agent.get("/api/v1/users").expect(200);
@@ -197,7 +204,16 @@ describe("PUT /api/v1/users/:id", () => {
     expect(response.body.services).toBeInstanceOf(Array);
     expect(response.body.payments).toBeInstanceOf(Array);
   });
+  test("Update user returns 409 when trying to update email with already registered email ", async () => {
+    const response = await agent
+      .put(`/api/v1/users/${user._id}`)
+      .send({ ...newUser, email: "admin@myapp.com" })
+      .expect(409);
 
+    expect(response.body.message).toBe(
+      "Another user is using the provided email address"
+    );
+  });
   it("should return a 400 status and error message when given an invalid user ID", async () => {
     const response = await agent
       .put("/api/v1/users/invalid")

@@ -30,6 +30,15 @@ const getUserById = async (req, res) => {
 
 const createUser = async (req, res) => {
   try {
+    const { email } = req.body;
+
+    const userSameEmail = await User.findOne({ email });
+    if (userSameEmail) {
+      return res.status(409).json({
+        message: "Another user is using the provided email address",
+      });
+    }
+
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const user = await User.create({ ...req.body, password: hashedPassword });
     const { password: _, ...userWithoutPassword } = user._doc;
@@ -54,6 +63,7 @@ const updateUser = async (req, res) => {
     if (!paramUser) {
       return res.status(404).json({ message: "User not found" });
     }
+
     const userSameEmail = await User.findOne({ email: req.body.email });
     if (userSameEmail && paramUser.id !== userSameEmail.id) {
       return res.status(409).json({

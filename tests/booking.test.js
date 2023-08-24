@@ -2,8 +2,7 @@ import createServer from "../server";
 import User from "../mongodb/models/user";
 import Room from "../mongodb/models/room";
 import Booking from "../mongodb/models/booking";
-import mongoose from "mongoose";
-
+import { connect, clear, close } from "./config/db";
 import * as dotenv from "dotenv";
 import { getAuthenticatedAgent } from "./utils/authentication.js";
 
@@ -30,13 +29,7 @@ let room;
 let booking;
 
 beforeAll(async () => {
-  mongoose.set("strictQuery", true);
-
-  mongoose.connect(process.env.MONGODB_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
-
+  await connect();
   admin = await User.create({
     name: "AdminBooking",
     lastName: "AdminBooking LastName",
@@ -46,6 +39,8 @@ beforeAll(async () => {
     role: "admin",
     password: "test1234",
   });
+
+  await admin.save();
 
   student = await User.create({
     name: "StudentBooking",
@@ -57,6 +52,8 @@ beforeAll(async () => {
     password: "test1234",
   });
 
+  await student.save();
+
   instructor = await User.create({
     name: "InstructorBooking",
     lastName: "InstructorBooking LastName",
@@ -67,11 +64,15 @@ beforeAll(async () => {
     password: "test1234",
   });
 
+  await instructor.save();
+
   room = await Room.create({
     name: "RoomBooking",
     features: ["test feature 1", "test feature 2"],
     createdBy: admin._id,
   });
+
+  await room.save();
 
   booking = await Booking.create({
     startTime: "Wed Jan 27 2021 10:00:00 GMT+1000 (AEST)",
@@ -88,6 +89,8 @@ beforeAll(async () => {
     ],
   });
 
+  await booking.save();
+
   newBooking.bookedBy = instructor._id;
   newBooking.student = student._id;
   newBooking.instructor = instructor._id;
@@ -97,7 +100,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await mongoose.connection.close();
+  await clear();
+  await close();
 });
 
 describe("POST /api/v1/bookings", () => {

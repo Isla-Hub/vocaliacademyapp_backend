@@ -1,9 +1,9 @@
 import createServer from "../server";
 import User from "../mongodb/models/user";
 import Room from "../mongodb/models/room";
-import mongoose from "mongoose";
 import * as dotenv from "dotenv";
 import { getAuthenticatedAgent } from "./utils/authentication.js";
+import { clear, close, connect } from "./config/db";
 
 dotenv.config();
 
@@ -20,11 +20,7 @@ let admin;
 let room;
 
 beforeAll(async () => {
-  mongoose.set("strictQuery", true);
-  mongoose.connect(process.env.MONGODB_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  await connect();
   admin = await User.create({
     name: "UserRoom",
     lastName: "UserRoom LastName",
@@ -34,20 +30,31 @@ beforeAll(async () => {
     role: "admin",
     password: "test1234",
   });
+  await admin.save();
   room = await Room.create({
     name: "TestRoom",
     features: ["test feature 1", "test feature 2"],
     createdBy: admin._id,
   });
+  await room.save();
   newRoom.createdBy = admin._id;
   agent = await getAuthenticatedAgent(app);
 });
 
 afterAll(async () => {
-  await mongoose.connection.close();
+  await clear();
+  await close();
 });
 
 describe("POST /api/v1/rooms", () => {
+  it("should return an error when trying to create a room with an existing name", async () => {
+    const response = await agent
+      .post("/api/v1/rooms")
+      .send({ ...newRoom, name: room.name }) // Using an existing room name
+      .expect(409);
+
+    expect(response.body.message).toBe("Room name already exists");
+  });
   it("should create a new room", async () => {
     const response = await agent
       .post("/api/v1/rooms")
@@ -112,6 +119,14 @@ describe("GET /api/v1/rooms/:id", () => {
 });
 
 describe("PUT /api/v1/rooms/:id", () => {
+  it("should return an error when trying to update a room with an existing name", async () => {
+    const response = await agent
+      .put(`/api/v1/rooms/${room._id}`)
+      .send({ name: newRoom.name }) // Using an existing room name
+      .expect(409);
+
+    expect(response.body.message).toBe("New room name already exists");
+  });
   it("should update a room", async () => {
     const response = await agent
       .put(`/api/v1/rooms/${room._id}`)
