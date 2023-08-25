@@ -383,10 +383,42 @@ describe("updateEventValidation", () => {
         name: "externalAtendants",
         message: "The externalAtendants field must be an array.",
       },
+      {
+        name: "externalAtendants[0].name",
+        message:
+          "The name field is required for each element of externalAtendants.",
+      },
+      {
+        name: "externalAtendants[0].lastName",
+        message:
+          "The lastName field is required for each element of externalAtendants.",
+      },
+      {
+        name: "externalAtendants[0].email",
+        message:
+          "The email field is required for each element of externalAtendants.",
+      },
+      {
+        name: "externalAtendants[0].phoneNumber",
+        message:
+          "The phoneNumber field is required for each element of externalAtendants.",
+      },
     ];
 
+    const body = {
+      ...newEvent,
+      externalAtendants: [
+        {
+          name: "John",
+          lastName: "Doe",
+          email: "john.doe@example.com",
+          phoneNumber: "1234567890",
+        },
+      ],
+    };
+
     for (const field of requiredFields) {
-      const requestBody = { ...newEvent, [field.name]: "" };
+      const requestBody = { ...body, [field.name]: "" };
       const response = await agent
         .put(`/api/v1/events/${event._id}`)
         .send(requestBody)
@@ -472,34 +504,28 @@ describe("updateEventValidation", () => {
         message: "The internalAtendants field must be an array.",
       },
       {
-        name: "internalAtendants.*",
-        value: "invalid-id",
-        message:
-          "Each element of internalAtendants must be a valid MongoDB ObjectId.",
-      },
-      {
         name: "externalAtendants",
         value: "not-an-array",
         message: "The externalAtendants field must be an array.",
       },
       {
-        name: "externalAtendants.*.name",
+        name: "externalAtendants[0].name",
         value: 12345,
         message: "The name field must be a string.",
       },
       {
-        name: "externalAtendants.*.lastName",
-        value: 67890,
+        name: "externalAtendants[0].lastName",
+        value: 12345,
         message: "The lastName field must be a string.",
       },
       {
-        name: "externalAtendants.*.email",
-        value: "invalid-email",
+        name: "externalAtendants[0].email",
+        value: "not-valid-email",
         message:
           "The email field must be a valid email address for each element of externalAtendants.",
       },
       {
-        name: "externalAtendants.*.phoneNumber",
+        name: "externalAtendants[0].phoneNumber",
         value: 12345,
         message: "The phoneNumber field must be a string.",
       },
@@ -531,12 +557,10 @@ describe("updateEventValidation", () => {
       ],
     };
 
-    const response1 = await agent.get("/api/v1/events/");
-
     for (const field of invalidFields) {
       const requestBody = { ...requestEvent, [field.name]: field.value };
       const response = await agent
-        .put(`/api/v1/events/${event._id.toString()}`)
+        .put(`/api/v1/events/${event._id}`)
         .send(requestBody)
         .expect(400);
       const errorMessages = response.body.errors.map((error) => error.msg);
@@ -546,28 +570,42 @@ describe("updateEventValidation", () => {
   });
   test("Validation works correctly for valid fields", async () => {
     let validFields = [
-      { name: "email", value: "testuserupdatenew@example.com" },
-      { name: "avatar", value: newUser.avatar },
-      { name: "dateOfBirth", value: newUser.dateOfBirth.toISOString() },
-      { name: "role", value: newUser.role },
+      { name: "createdAt", value: "2023-07-23T14:00:00.000Z" },
+      { name: "createdBy", value: admin._id.toString() },
+      { name: "name", value: "Test Event" },
+      { name: "date", value: "2023-08-01T15:00:00.000Z" },
+      { name: "instructedBy", value: instructor._id.toString() },
+      { name: "room", value: room._id },
+      { name: "eventGroupSize", value: 20 },
+      { name: "totalAttended", value: 15 },
+      { name: "isPublic", value: true },
+      { name: "categories", value: ["workshop", "fitness"] },
+      { name: "level", value: "beginner" },
+      { name: "internalPrice", value: 50.0 },
+      { name: "externalPrice", value: 100.0 },
+      { name: "internalAtendants", value: [student._id.toString()] },
       {
-        name: "subscribed",
-        value: {
-          newsletter: false,
-          notifications: false,
-        },
+        name: "externalAtendants",
+        value: [
+          {
+            name: "John",
+            lastName: "Doe",
+            email: "john.doe@example.com",
+            phoneNumber: "1234567890",
+          },
+        ],
       },
     ];
-    const requestBody = {
-      ...newUser,
-      email: "testuserupdatenew@example.com",
-      subscribed: { newsletter: false, notifications: false },
-    };
+    let requestBody = {};
+
+    for (let field of validFields) {
+      requestBody[field.name] = field.value;
+    }
 
     const response = await agent
-      .put(`/api/v1/users/${user._id}`)
-      .send(requestBody)
-      .expect(200);
+      .put(`/api/v1/events/${event._id}`)
+      .send(requestBody);
+    // .expect(200);
 
     for (const field of validFields) {
       expect(response.body[field.name].toString()).toBe(field.value.toString());

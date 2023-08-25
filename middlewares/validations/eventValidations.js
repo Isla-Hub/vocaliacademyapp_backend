@@ -4,7 +4,8 @@ const createEventValidation = [
   body("createdAt")
     .optional()
     .isISO8601()
-    .withMessage("The createdAt field must be a valid ISO8601 date."),
+    .withMessage("The createdAt field must be a valid ISO8601 date.")
+    .toDate(),
   body("createdBy")
     .notEmpty()
     .withMessage("The createdBy field is required.")
