@@ -1,11 +1,7 @@
 import express from "express";
 import canPerformAction from "../middlewares/canPerformAction.js";
 import { rolesAction } from "../rolesAction.js";
-import {
-  createRoomValidation,
-  updateRoomValidation,
-} from "../middlewares/validations/roomValidations.js";
-import handleValidationErrors from "../middlewares/validations/handleValidationErrors.js";
+import { param } from "express-validator";
 
 import {
   getAllRooms,
@@ -14,6 +10,13 @@ import {
   updateRoom,
   deleteRoom,
 } from "../controllers/room.controller.js";
+
+import {
+  createRoomValidation,
+  updateRoomValidation,
+} from "../middlewares/validations/roomValidations.js";
+
+import handleValidationErrors from "../middlewares/validations/handleValidationErrors.js";
 
 const router = express.Router();
 
@@ -36,6 +39,8 @@ router
 router
   .route("/:id")
   .get(
+    param("id").notEmpty().withMessage("Event ID is required"),
+    handleValidationErrors,
     canPerformAction([
       rolesAction.admin,
       rolesAction.instructor,
@@ -49,6 +54,11 @@ router
     handleValidationErrors,
     updateRoom
   )
-  .delete(canPerformAction([rolesAction.admin]), deleteRoom);
+  .delete(
+    param("id").notEmpty().withMessage("Event ID is required"),
+    handleValidationErrors,
+    canPerformAction([rolesAction.admin]),
+    deleteRoom
+  );
 
 export default router;
