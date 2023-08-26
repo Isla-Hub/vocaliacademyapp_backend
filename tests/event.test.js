@@ -2,9 +2,9 @@ import createServer from "../server";
 import User from "../mongodb/models/user";
 import Room from "../mongodb/models/room";
 import Event from "../mongodb/models/event";
-import mongoose from "mongoose";
 import * as dotenv from "dotenv";
 import { getAuthenticatedAgent } from "./utils/authentication.js";
+import { clear, connect, close } from "./config/db";
 
 dotenv.config();
 
@@ -27,11 +27,7 @@ let room;
 let event;
 
 beforeAll(async () => {
-  mongoose.set("strictQuery", true);
-  mongoose.connect(process.env.MONGODB_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  await connect();
   instructor = await User.create({
     name: "InstructorEvent",
     lastName: "IntructorEvent LastName",
@@ -41,6 +37,7 @@ beforeAll(async () => {
     role: "instructor",
     password: "test1234",
   });
+  await instructor.save();
   admin = await User.create({
     name: "AdminEventt",
     lastName: "AdminEvent LastName",
@@ -50,6 +47,7 @@ beforeAll(async () => {
     role: "admin",
     password: "test1234",
   });
+  await admin.save();
 
   student = await User.create({
     name: "UserEvent",
@@ -60,12 +58,15 @@ beforeAll(async () => {
     role: "student",
     password: "test1234",
   });
+  await student.save();
 
   room = await Room.create({
     name: "RoomEvent",
     features: ["mirrors", "speakers"],
     createdBy: admin._id,
   });
+
+  await room.save();
   event = await Event.create({
     name: "TestEvent",
     date: new Date(),
@@ -79,6 +80,7 @@ beforeAll(async () => {
     internalPrice: 20,
     externalPrice: 30,
   });
+  await event.save();
   newEvent.instructedBy = instructor._id;
   newEvent.room = room._id;
   newEvent.createdBy = admin._id;
@@ -87,7 +89,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await mongoose.connection.close();
+  await clear();
+  await close();
 });
 
 describe("POST /api/v1/events", () => {

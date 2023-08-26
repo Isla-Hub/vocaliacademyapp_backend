@@ -1,8 +1,9 @@
 import createServer from "../server";
 import User from "../mongodb/models/user";
-import mongoose from "mongoose";
 import * as dotenv from "dotenv";
 import { getAuthenticatedAgent } from "./utils/authentication";
+import { clear, close, connect } from "./config/db";
+import mongoose from "mongoose";
 
 dotenv.config();
 
@@ -18,18 +19,14 @@ let newUser = {
   avatar:
     "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
   dateOfBirth: new Date(),
-  role: "student",
+  role: "admin",
   password: "test1234",
 };
 
 let user;
 
 beforeAll(async () => {
-  mongoose.set("strictQuery", true);
-  mongoose.connect(process.env.MONGODB_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  await connect();
   user = await User.create({
     name: "TestUser",
     lastName: "TestUser LastName",
@@ -47,7 +44,8 @@ beforeEach(() => {
 });
 
 afterAll(async () => {
-  await mongoose.connection.close();
+  await clear();
+  await close();
 });
 
 describe("POST /api/v1/users", () => {
@@ -99,7 +97,7 @@ describe("POST /api/v1/users", () => {
       "Another user is using the provided email address"
     );
   });
-}); 
+});
 describe("GET /api/v1/users", () => {
   it("should return all users", async () => {
     const response = await agent.get("/api/v1/users").expect(200);

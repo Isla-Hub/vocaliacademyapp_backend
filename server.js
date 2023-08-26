@@ -8,6 +8,7 @@ import paymentRouter from "./routes/payment.routes.js";
 import authRouter from "./routes/auth.routes.js";
 
 import cors from "cors";
+import morgan from "morgan";
 import { authenticateToken } from "./middlewares/jwt.js";
 
 function createServer() {
@@ -15,6 +16,7 @@ function createServer() {
 
   app.use(cors());
   app.use(express.json({ limit: "50mb" }));
+  app.use(morgan("dev"));
 
   app.use(/^(?!.*\/auth).*$/, authenticateToken);
 

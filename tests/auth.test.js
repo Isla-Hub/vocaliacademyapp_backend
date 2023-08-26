@@ -1,11 +1,11 @@
 import request from "supertest";
 import createServer from "../server";
 import User from "../mongodb/models/user";
-import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import * as dotenv from "dotenv";
 import { authenticateToken } from "../middlewares/jwt";
+import { connect, clear, close } from "./config/db";
 
 dotenv.config();
 
@@ -16,12 +16,7 @@ describe("Auth controller", () => {
   let hashedPassword;
 
   beforeAll(async () => {
-    mongoose.set("strictQuery", true);
-
-    mongoose.connect(process.env.MONGODB_URL, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await connect();
     hashedPassword = await bcrypt.hash("password123", 10);
     userLogin = await User.create({
       email: "userauthlogin@test.com",
@@ -33,18 +28,16 @@ describe("Auth controller", () => {
       dateOfBirth: new Date(),
       role: "student",
     });
-    
+    await userLogin.save();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     jest.restoreAllMocks();
   });
 
   afterAll(async () => {
-    await User.deleteMany({
-      email: { $in: ["userauthlogin@test.com"] },
-    });
-    await mongoose.connection.close();
+    await clear();
+    await close();
   });
 
   describe("POST /login", () => {
@@ -144,6 +137,4 @@ describe("Auth controller", () => {
       expect(response.statusCode).toEqual(401);
     });
   });
-
-
 });
