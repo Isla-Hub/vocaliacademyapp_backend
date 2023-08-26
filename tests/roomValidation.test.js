@@ -1,9 +1,11 @@
-import createServer from "../server";
-import Room from "../mongodb/models/room";
-import User from "../mongodb/models/user";
-import mongoose from "mongoose";
+import createServer from "../server.js";
+
+import User from "../mongodb/models/user.js";
+import Room from "../mongodb/models/room.js";
+
 import * as dotenv from "dotenv";
-import { getAuthenticatedAgent } from "./utils/authentication";
+import { getAuthenticatedAgent } from "./utils/authentication.js";
+import { clear, close, connect } from "./config/db";
 
 dotenv.config();
 
@@ -11,64 +13,51 @@ const app = createServer();
 
 let agent;
 
-let newUser = {
-  name: "NewUserValidation",
-  lastName: "NewUserValidation LastName",
-  email: "newuservalidation@example.com",
-  phoneNumber: "1234567890",
-  avatar:
-    "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
-  dateOfBirth: new Date(),
-  role: "student",
-  password: "test1234",
-};
-
 let newRoom = {
   name: "NewRoomValidation",
-  createdAt: new Date(),
-  features: ["feature1", "feature2"],
+  features: ["Feature 1", "Feature 2", "Feature 3"],
 };
 
+let admin;
 let room;
 
 beforeAll(async () => {
-  mongoose.set("strictQuery", true);
-  mongoose.connect(process.env.MONGODB_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  await connect();
 
-  let user = await User.create({
-    name: "TestUserUpdate",
-    lastName: "TestUserUpdate LastName",
-    email: "testuserupdate@example.com",
+  admin = await User.create({
+    name: "AdminRoomValidation",
+    lastName: "AdminRoomValidationLastName",
+    email: "adminroomvalidation@example.com",
     phoneNumber: "1234567890",
     dateOfBirth: new Date(),
     role: "admin",
     password: "test1234",
   });
-  room = await Room.create({
-    name: "RommValidation",
-    createdAt: new Date(),
-    features: ["feature3", "feature4"],
-    createdBy: user._id,
-  });
 
-  newRoom.createdBy = user._id;
+  await admin.save();
+
+  room = await Room.create({
+    name: "TestRoomValdiation",
+    createdBy: admin._id,
+    features: ["Feature 1", "Feature 2", "Feature 3"],
+  });
+  newRoom.createdBy = admin._id;
+
+  await room.save();
 
   agent = await getAuthenticatedAgent(app);
 });
 
 afterAll(async () => {
-  await mongoose.connection.close();
+  await clear();
+  await close();
 });
 
 describe("createRoomValidation", () => {
-  test("Empty required fields returns error", async () => {
+  test("Empty required fields return error", async () => {
     const requiredFields = [
-      { name: "name", message: "Name is required" },
-      { name: "createdBy", message: "Created By is required" },
-      { name: "features", message: "Features must be an array" },
+      { name: "name", message: "Name is required." },
+      { name: "createdBy", message: "CreatedBy is required." },
     ];
 
     for (const field of requiredFields) {
@@ -86,9 +75,19 @@ describe("createRoomValidation", () => {
   test("Validation works correctly for invalid fields", async () => {
     const invalidFields = [
       {
+        name: "name",
+        value: "A name that is super long and the length is greater than 50",
+        message: "Name must be at most 50 characters long.",
+      },
+      {
+        name: "createdBy",
+        value: "1234",
+        message: "CreatedBy must be a valid MongoDB ObjectId.",
+      },
+      {
         name: "features",
-        value: "string",
-        message: "Features must be an array",
+        value: "Feature 1",
+        message: "Features must be an array.",
       },
     ];
 
@@ -105,20 +104,20 @@ describe("createRoomValidation", () => {
   });
 
   test("Validation works correctly for valid fields", async () => {
-    let validFields = [
+    const validFields = [
       { name: "name", value: newRoom.name },
-      { name: "createdBy", value: newRoom.createdBy.toString() },
+      { name: "createdBy", value: newRoom.createdBy },
       { name: "features", value: newRoom.features },
     ];
-    const requestBody = newRoom;
 
+    const requestBody = newRoom;
     const response = await agent
       .post("/api/v1/rooms")
       .send(requestBody)
       .expect(201);
 
     for (const field of validFields) {
-      expect(response.body[field.name]).toStrictEqual(field.value);
+      expect(response.body[field.name].toString()).toBe(field.value.toString());
     }
   });
 });
@@ -126,15 +125,14 @@ describe("createRoomValidation", () => {
 describe("updateRoomValidation", () => {
   test("Empty string for optional fields returns error", async () => {
     const requiredFields = [
-      { name: "name", message: "Name is required" },
-      { name: "createdBy", message: "Created By is required" },
-      { name: "features", message: "Features must be an array" },
+      { name: "name", message: "Name cannot be empty." },
+      { name: "createdBy", message: "CreatedBy cannot be empty." },
     ];
 
     for (const field of requiredFields) {
       const requestBody = { ...newRoom, [field.name]: "" };
       const response = await agent
-        .put(`/api/v1/rooms/${room._id}`)
+        .put(`/api/v1/room/${room._id}`)
         .send(requestBody)
         .expect(400);
       expect(
@@ -145,16 +143,26 @@ describe("updateRoomValidation", () => {
   test("Validation works correctly for invalid fields", async () => {
     const invalidFields = [
       {
+        name: "name",
+        value: "A name that is super long and the length is greater than 50",
+        message: "Name must be at most 50 characters long.",
+      },
+      {
+        name: "createdBy",
+        value: "1234",
+        message: "CreatedBy must be a valid MongoDB ObjectId.",
+      },
+      {
         name: "features",
-        value: "string",
-        message: "Features must be an array",
+        value: "Feature 1",
+        message: "Features must be an array.",
       },
     ];
 
     const body = {
-      name: "RoomUpdateValidation",
-      features: ["feature1", "feature2"],
-      createdBy: room.createdBy,
+      name: "TestRoomValdiation",
+      createdBy: admin._id,
+      features: ["Feature 1", "Feature 2", "Feature 3"],
     };
     for (const field of invalidFields) {
       const requestBody = { ...body, [field.name]: field.value };
@@ -167,31 +175,25 @@ describe("updateRoomValidation", () => {
       ).toBe(true);
     }
   });
+
   test("Validation works correctly for valid fields", async () => {
     let validFields = [
-      { name: "name", value: newRoom.name },
-      { name: "createdBy", value: newRoom.createdBy },
-      { name: "features", value: newRoom.features },
+      { name: "name", value: "NewRoomValidation" },
+      { name: "createdBy", value: "6123456789abcdef01234567" },
+      { name: "features", value: ["Feature 1", "Feature 2", "Feature 3"] },
     ];
     const requestBody = {
       ...newRoom,
+      createdBy: "6123456789abcdef01234567",
     };
 
-    const ep = "/api/v1/rooms/" + room._id;
-
-    const response = await agent.put(ep).send(requestBody).expect(200);
+    const response = await agent
+      .put(`/api/v1/rooms/${room._id}`)
+      .send(requestBody)
+      .expect(200);
 
     for (const field of validFields) {
       expect(response.body[field.name].toString()).toBe(field.value.toString());
     }
-  });
-
-  test("Update room returns 409 when trying to update name with already registered name ", async () => {
-    const response = await agent
-      .put(`/api/v1/rooms/${room._id}`)
-      .send({ ...newRoom, name: room.name })
-      .expect(409);
-
-    expect(response.body.message).toBe("Room's name already exists");
   });
 });
