@@ -74,8 +74,8 @@ describe("createRoomValidation", () => {
     const invalidFields = [
       {
         name: "name",
-        value: "A name that is super long and the length is greater than 50",
-        message: "The name field must be at most 50 characters long.",
+        value: 1234,
+        message: "The name field must be a string.",
       },
       {
         name: "createdBy",
