@@ -1,6 +1,7 @@
 import express from "express";
 import canPerformAction from "../middlewares/canPerformAction.js";
 import { rolesAction } from "../rolesAction.js";
+import { param } from "express-validator";
 
 import {
   getAllEvents,
@@ -10,30 +11,41 @@ import {
   deleteEvent,
 } from "../controllers/event.controller.js";
 
+import {
+  createEventValidation,
+  updateEventValidation,
+} from "../middlewares/validations/eventValidations.js";
+
+import handleValidationErrors from "../middlewares/validations/handleValidationErrors.js";
+
 const router = express.Router();
 
 router
   .route("/")
-  .get(
-    canPerformAction([
-      rolesAction.admin,
-      rolesAction.instructor,
-      rolesAction.student,
-    ]),
-    getAllEvents
-  );
+  .get(canPerformAction([
+    rolesAction.admin,
+    rolesAction.instructor,
+    rolesAction.student,
+  ]), getAllEvents)
+  .post(createEventValidation, handleValidationErrors, canPerformAction([rolesAction.admin]), createEvent);
 router
   .route("/:id")
   .get(
+    param("id").notEmpty().withMessage("Event ID is required"),
+    handleValidationErrors,
     canPerformAction([
       rolesAction.admin,
       rolesAction.instructor,
       rolesAction.student,
     ]),
     getEventById
+  )
+  .put(updateEventValidation, handleValidationErrors, canPerformAction([rolesAction.admin]), updateEvent)
+  .delete(
+    param("id").notEmpty().withMessage("Event ID is required"),
+    handleValidationErrors,
+    canPerformAction([rolesAction.admin]),
+    deleteEvent
   );
-router.route("/").post(canPerformAction([rolesAction.admin]), createEvent);
-router.route("/:id").put(canPerformAction([rolesAction.admin]), updateEvent);
-router.route("/:id").delete(canPerformAction([rolesAction.admin]), deleteEvent);
 
 export default router;
