@@ -1,6 +1,7 @@
 import express from "express";
 import canPerformAction from "../middlewares/canPerformAction.js";
 import { rolesAction } from "../rolesAction.js";
+import { param } from "express-validator";
 
 import {
   getAllBookings,
@@ -10,6 +11,13 @@ import {
   deleteBooking,
 } from "../controllers/booking.controller.js";
 
+import {
+  createBookingValidation,
+  updateBookingValidation,
+} from "../middlewares/validations/bookingValidations.js";
+
+import handleValidationErrors from "../middlewares/validations/handleValidationErrors.js";
+
 const router = express.Router();
 
 router
@@ -17,6 +25,16 @@ router
   .get(
     canPerformAction([rolesAction.admin, rolesAction.instructor]),
     getAllBookings
+  )
+  .post(
+    canPerformAction([
+      rolesAction.admin,
+      rolesAction.instructor,
+      rolesAction.student,
+    ]),
+    createBookingValidation,
+    handleValidationErrors,
+    createBooking
   );
 router
   .route("/:id")
@@ -27,25 +45,13 @@ router
       rolesAction.student,
     ]),
     getBookingById
-  );
-router
-  .route("/")
-  .post(
-    canPerformAction([
-      rolesAction.admin,
-      rolesAction.instructor,
-      rolesAction.student,
-    ]),
-    createBooking
-  );
-router
-  .route("/:id")
+  )
   .put(
     canPerformAction([rolesAction.admin, rolesAction.instructor]),
+    updateBookingValidation,
+    handleValidationErrors,
     updateBooking
-  );
-router
-  .route("/:id")
+  )
   .delete(
     canPerformAction([rolesAction.admin, rolesAction.instructor]),
     deleteBooking
