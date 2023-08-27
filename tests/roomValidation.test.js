@@ -123,13 +123,17 @@ describe("createRoomValidation", () => {
 describe("updateRoomValidation", () => {
   test("Empty string for optional fields returns error", async () => {
     const requiredFields = [
-      { name: "", message: "The name field cannot be empty." },
+      { name: "name", message: "The name field cannot be empty." },
       {
-        name: "",
+        name: "createdBy",
         message: "The createdBy field cannot be empty.",
       },
       {
-        name: "",
+        name: "features",
+        message: "The features field cannot be empty.",
+      },
+      {
+        name: "createdAt",
         message: "The createdAt field cannot be empty.",
       },
     ];
@@ -149,8 +153,8 @@ describe("updateRoomValidation", () => {
     const invalidFields = [
       {
         name: "name",
-        value: "A name that is super long and the length is greater than 50",
-        message: "The name field must be at most 50 characters long.",
+        value: 1234,
+        message: "The name field must be a string.",
       },
       {
         name: "createdBy",
@@ -162,20 +166,19 @@ describe("updateRoomValidation", () => {
         value: "Feature 1",
         message: "The features field must be an array.",
       },
+      {
+        name: "createdAt",
+        value: "invalid-date",
+        message: "The createdAt field must be a valid ISO8601 date.",
+      },
     ];
 
-    const body = {
-      name: "TestRoomValdiation",
-      createdBy: admin._id,
-      features: ["Feature 1", "Feature 2", "Feature 3"],
-    };
     for (const field of invalidFields) {
-      const requestBody = { ...body, [field.name]: field.value };
+      const requestBody = { ...newRoom, [field.name]: field.value };
       const response = await agent
         .put(`/api/v1/rooms/${room._id}`)
         .send(requestBody)
         .expect(400);
-      expect(response.body.errors.some((error) => error.msg === field.message));
 
       const errorMessages = response.body.errors.map((error) => error.msg);
 

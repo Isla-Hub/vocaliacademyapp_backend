@@ -4,8 +4,8 @@ const createRoomValidation = [
   body("name")
     .notEmpty()
     .withMessage("The name field is required.")
-    .isLength({ max: 50 })
-    .withMessage("The name field must be at most 50 characters long."),
+    .isString()
+    .withMessage("The name field must be a string."),
   body("createdBy")
     .notEmpty()
     .withMessage("The createdBy field is required.")
@@ -41,6 +41,12 @@ const updateRoomValidation = [
     .withMessage("The features field cannot be empty.")
     .isArray()
     .withMessage("The features field must be an array."),
+  body("createdAt")
+    .optional()
+    .notEmpty()
+    .withMessage("The createdAt field cannot be empty.")
+    .isISO8601()
+    .withMessage("The createdAt field must be a valid ISO8601 date."),
 ];
 
 export { createRoomValidation, updateRoomValidation };
