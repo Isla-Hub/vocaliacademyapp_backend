@@ -1,12 +1,10 @@
 import User from "../mongodb/models/user.js";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
-import { filterSensitiveData, applyFilterSensitiveData } from "../middlewares/utils.js"
-
 
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find();
+    const users = await User.find().select('+password');
     res.status(200).json(users);
   } catch (error) {
     res.status(404).json({ message: error.message });
@@ -19,13 +17,12 @@ const getUserById = async (req, res) => {
     if (!mongoose.isValidObjectId(id)) {
       return res.status(400).json({ message: "Invalid user ID" });
     }
-    const user = await User.findById(id);
+    const user = await User.findById(id).select('+password');
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const userWithoutPassword = applyFilterSensitiveData(user);
-    res.status(200).json(userWithoutPassword);
+    res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -35,7 +32,7 @@ const createUser = async (req, res) => {
   try {
     const { email } = req.body;
 
-    const userSameEmail = await User.findOne({ email });
+    const userSameEmail = await User.findOne({ email }).select('+password');
     if (userSameEmail) {
       return res.status(409).json({
         message: "Another user is using the provided email address",
@@ -44,7 +41,7 @@ const createUser = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const user = await User.create({ ...req.body, password: hashedPassword });
-    const userWithoutPassword = applyFilterSensitiveData(user);
+    const { password: _, ...userWithoutPassword } = user._doc;
     res.status(201).json(userWithoutPassword);
   } catch (error) {
     if (error.code === 11000) {
@@ -62,7 +59,7 @@ const updateUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid user ID" });
     }
 
-    const paramUser = await User.findById(id);
+    const paramUser = await User.findById(id).select('+password');
     if (!paramUser) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -77,7 +74,7 @@ const updateUser = async (req, res) => {
       new: true,
       runValidators: true,
     });
-    const userWithoutPassword = applyFilterSensitiveData(user);
+    const { password: _, ...userWithoutPassword } = user._doc;
     res.status(200).json(userWithoutPassword);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -90,7 +87,7 @@ const deleteUser = async (req, res) => {
     if (!mongoose.isValidObjectId(id)) {
       return res.status(400).json({ message: "Invalid user ID" });
     }
-    const user = await User.findById(id);
+    const user = await User.findById(id).select('+password');
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
