@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select('+password');
+    const users = await User.find();
     res.status(200).json(users);
   } catch (error) {
     res.status(404).json({ message: error.message });
@@ -17,7 +17,7 @@ const getUserById = async (req, res) => {
     if (!mongoose.isValidObjectId(id)) {
       return res.status(400).json({ message: "Invalid user ID" });
     }
-    const user = await User.findById(id).select('+password');
+    const user = await User.findById(id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -32,7 +32,7 @@ const createUser = async (req, res) => {
   try {
     const { email } = req.body;
 
-    const userSameEmail = await User.findOne({ email }).select('+password');
+    const userSameEmail = await User.findOne({ email });
     if (userSameEmail) {
       return res.status(409).json({
         message: "Another user is using the provided email address",
@@ -59,7 +59,7 @@ const updateUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid user ID" });
     }
 
-    const paramUser = await User.findById(id).select('+password');
+    const paramUser = await User.findById(id).select('password');
     if (!paramUser) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -87,7 +87,7 @@ const deleteUser = async (req, res) => {
     if (!mongoose.isValidObjectId(id)) {
       return res.status(400).json({ message: "Invalid user ID" });
     }
-    const user = await User.findById(id).select('+password');
+    const user = await User.findById(id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
