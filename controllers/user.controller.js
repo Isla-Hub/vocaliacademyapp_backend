@@ -59,7 +59,7 @@ const updateUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid user ID" });
     }
 
-    const paramUser = await User.findById(id);
+    const paramUser = await User.findById(id).select('password');
     if (!paramUser) {
       return res.status(404).json({ message: "User not found" });
     }
