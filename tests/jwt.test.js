@@ -22,7 +22,7 @@ describe("authenticateToken middleware", () => {
     });
 
     const response = await request(app)
-      .get("/")
+      .get("/api/v1/users")
       .set("Authorization", `Bearer ${token}`);
 
     expect(response.status).toBe(401);
@@ -38,7 +38,7 @@ describe("authenticateToken middleware", () => {
     });
 
     const response = await request(app)
-      .get("/")
+      .get("/api/v1/users")
       .set("Authorization", `Bearer ${token}`);
 
     expect(response.status).toBe(422);
