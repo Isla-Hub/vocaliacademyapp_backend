@@ -4,21 +4,29 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 function generateAccessToken(data) {
-  return jwt.sign(data, process.env.JWT_SECRET, { expiresIn: "86400s" });
+  return jwt.sign(data, process.env.JWT_SECRET, { expiresIn: "15m" });
 }
 
 function authenticateToken(req, res, next) {
-  //test
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
-
-  //postman
-  // const token = req.headers["authorization"];
 
   if (token == null) return res.sendStatus(401);
 
   jwt.verify(token, process.env.JWT_SECRET, (err, data) => {
-    if (err) return res.sendStatus(403);
+    if (err) {
+      if (err.name === "TokenExpiredError") {
+        return res.status(401).json({
+          success: false,
+          expireTime: true,
+          message: "JWT has expired. Please login again.",
+        });
+      }
+      return res.status(422).json({
+        success: false,
+        message: "JWT Verification Issue.",
+      });
+    }
 
     req.userId = data.userId;
     req.role = data.role;
