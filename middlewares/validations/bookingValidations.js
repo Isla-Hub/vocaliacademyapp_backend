@@ -57,7 +57,6 @@ const createBookingValidation = [
     .isString()
     .withMessage("The by field must be a string."),
   body("comments.*.date")
-    .optional()
     .notEmpty()
     .withMessage("The date field cannot be empty for each element of comments.")
     .isISO8601()

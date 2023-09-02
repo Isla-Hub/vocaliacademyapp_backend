@@ -14,8 +14,8 @@ const app = createServer();
 let agent;
 
 let newBooking = {
-  startTime: "Wed Jan 27 2021 10:00:00 GMT+1000 (AEST)",
-  endTime: "Wed Jan 27 2021 11:00:00 GMT+1000 (AEST)",
+  startTime: new Date(),
+  endTime: new Date(),
   comments: [
     {
       content: "I will not be able to attend ",
@@ -77,8 +77,8 @@ beforeAll(async () => {
   await room.save();
 
   booking = await Booking.create({
-    startTime: "Wed Jan 27 2021 10:00:00 GMT+1000 (AEST)",
-    endTime: "Wed Jan 27 2021 11:00:00 GMT+1000 (AEST)",
+    startTime: new Date(),
+    endTime: new Date(),
     bookedBy: instructor._id,
     student: student._id,
     instructor: instructor._id,
@@ -86,6 +86,7 @@ beforeAll(async () => {
     comments: [
       {
         by: student._id,
+        date: new Date(),
         content: "I will not be able to attend ",
       },
     ],
@@ -98,6 +99,7 @@ beforeAll(async () => {
   newBooking.instructor = instructor._id;
   newBooking.room = room._id;
   newBooking.comments[0].by = student._id;
+  newBooking.comments[0].date = booking.startTime;
 
   agent = await getAuthenticatedAgent(app);
 });
@@ -231,7 +233,7 @@ describe("createBookingValidation", () => {
         value: [
           {
             by: "64eb5d8a67ff3b98f2ab47a0",
-            date: "6585",
+            date: 55,
             content: "This comments is a test",
           },
         ],
@@ -264,18 +266,18 @@ describe("createBookingValidation", () => {
 
   test("Validation works correctly for valid fields", async () => {
     const correctFields = {
-      startTime: newBooking.date,
-      endTime: newBooking.date,
+      startTime: newBooking.startTime.toISOString(),
+      endTime: newBooking.endTime.toISOString(),
       bookedBy: mongoose.Types.ObjectId(),
       student: mongoose.Types.ObjectId(),
       instructor: mongoose.Types.ObjectId(),
       room: mongoose.Types.ObjectId(),
-      cancelled: false,
+      cancelled: true,
       comments: [
         {
           by: mongoose.Types.ObjectId(),
-          date: newBooking.date,
-          content: "This comments is a test",
+          date: newBooking.comments[0].date.toISOString(),
+          content: "This is a valid comment.",
         },
       ],
     };
@@ -407,7 +409,7 @@ describe("updateBookingValidation", () => {
       {
         name: "endTime",
         value: "10/05/2023",
-        message: "The startTime field must be a valid ISO8601 date.",
+        message: "The endTime field must be a valid ISO8601 date.",
       },
       {
         name: "bookedBy",
@@ -487,19 +489,19 @@ describe("updateBookingValidation", () => {
   });
   test("Validation works correctly for valid fields", async () => {
     let validFields = [
-      { name: "startTime", value: newBooking.date },
-      { name: "endTime", value: newBooking.date },
-      { name: "bookedBy", value: mongoose.Types.ObjectId() },
-      { name: "student", value: mongoose.Types.ObjectId() },
-      { name: "instructor", value: mongoose.Types.ObjectId() },
-      { name: "room", value: mongoose.Types.ObjectId() },
+      { name: "startTime", value: "2023-07-23T14:00:00.000Z" },
+      { name: "endTime", value: "2023-07-23T14:05:00.000Z" },
+      { name: "bookedBy", value: newBooking.bookedBy.toString() },
+      { name: "student", value: newBooking.student.toString() },
+      { name: "instructor", value: newBooking.instructor.toString() },
+      { name: "room", value: newBooking.room.toString() },
       { name: "cancelled", value: false },
       {
         name: "comments",
         value: [
           {
-            by: mongoose.Types.ObjectId(),
-            date: newBooking.date,
+            by: newBooking.comments[0].by.toString(),
+            date: "2023-07-23T14:08:00.000Z",
             content: "This comments is a test",
           },
         ],
