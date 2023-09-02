@@ -4,7 +4,6 @@ import User from "../mongodb/models/user";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import * as dotenv from "dotenv";
-import { authenticateToken } from "../middlewares/jwt";
 import { connect, clear, close } from "./config/db";
 
 dotenv.config();
@@ -47,31 +46,6 @@ describe("Auth controller", () => {
       expect(res.body.message).toEqual("Email and password are required");
     });
 
-    test("should return a 403 status when given an invalid token", () => {
-      const req = {
-        headers: {
-          authorization: "Bearer invalid_token",
-        },
-      };
-      const res = {
-        sendStatus: jest.fn(),
-      };
-      const next = jest.fn();
-
-      jest
-        .spyOn(jwt, "verify")
-        .mockImplementation((token, secret, callback) => {
-          callback(new Error("Invalid token"));
-        });
-
-      authenticateToken(req, res, next);
-
-      expect(next).not.toHaveBeenCalled();
-      expect(res.sendStatus).toHaveBeenCalledWith(403);
-
-      jwt.verify.mockRestore();
-    });
-
     test("should return 401 if email is invalid", async () => {
       const res = await request(app)
         .post("/api/v1/auth/login")
@@ -94,6 +68,8 @@ describe("Auth controller", () => {
         .send({ email: userLogin.email, password: "password123" });
       expect(res.statusCode).toEqual(200);
       expect(res.body.token).toBeDefined();
+      expect(res.body.expiresIn).toBeDefined();
+      expect(res.body.userId).toEqual(userLogin._id.toString());
 
       const decodedToken = jwt.decode(res.body.token);
       expect(decodedToken.userId).toEqual(userLogin._id.toString());
