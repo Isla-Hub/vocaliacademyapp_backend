@@ -10,24 +10,36 @@ import {
   deletePayment,
 } from "../controllers/payment.controller.js";
 
+import {
+  createPaymentValidation,
+  updatePaymentValidation,
+} from "../middlewares/validations/paymentValidation.js";
+
+import handleValidationErrors from "../middlewares/validations/handleValidationErrors.js";
+
 const router = express.Router();
 
-router.route("/").get(canPerformAction([rolesAction.admin]), getAllPayments);
+router
+  .route("/")
+  .get(canPerformAction([rolesAction.admin]), getAllPayments)
+  .post(
+    canPerformAction([rolesAction.admin, rolesAction.student]),
+    createPaymentValidation,
+    handleValidationErrors,
+    createPayment
+  );
 router
   .route("/:id")
   .get(
     canPerformAction([rolesAction.admin, rolesAction.student]),
     getPaymentById
-  );
-router
-  .route("/")
-  .post(
-    canPerformAction([rolesAction.admin, rolesAction.student]),
-    createPayment
-  );
-router.route("/:id").put(canPerformAction([rolesAction.admin]), updatePayment);
-router
-  .route("/:id")
+  )
+  .put(
+    canPerformAction([rolesAction.admin]),
+    updatePaymentValidation,
+    handleValidationErrors,
+    updatePayment
+  )
   .delete(canPerformAction([rolesAction.admin]), deletePayment);
 
 export default router;

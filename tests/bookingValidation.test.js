@@ -215,7 +215,8 @@ describe("createBookingValidation", () => {
       {
         name: "comments",
         value: "invalid comment",
-        message: "The comments field must be an array.",
+        message:
+          "The comments field must be an array with at least one element.",
       },
       {
         name: "comments",
@@ -439,7 +440,8 @@ describe("updateBookingValidation", () => {
       {
         name: "comments",
         value: "invalid comment",
-        message: "The comments field must be an array.",
+        message:
+          "The comments field must be an array with at least one element.",
       },
       {
         name: "comments",

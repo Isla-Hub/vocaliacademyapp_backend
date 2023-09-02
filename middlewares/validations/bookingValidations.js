@@ -49,8 +49,10 @@ const createBookingValidation = [
     .optional()
     .notEmpty()
     .withMessage("The comments field cannot be empty.")
-    .isArray()
-    .withMessage("The comments field must be an array."),
+    .isArray({ min: 1 })
+    .withMessage(
+      "The comments field must be an array with at least one element."
+    ),
   body("comments.*.by")
     .notEmpty()
     .withMessage("The by field is required for each element of comments.")
@@ -121,8 +123,10 @@ const updateBookingValidation = [
     .optional()
     .notEmpty()
     .withMessage("The comments field cannot be empty.")
-    .isArray()
-    .withMessage("The comments field must be an array."),
+    .isArray({ min: 1 })
+    .withMessage(
+      "The comments field must be an array with at least one element."
+    ),
   body("comments.*.by")
     .optional()
     .notEmpty()
