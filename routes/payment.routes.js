@@ -1,6 +1,7 @@
 import express from "express";
 import canPerformAction from "../middlewares/canPerformAction.js";
 import { rolesAction } from "../rolesAction.js";
+import { param } from "express-validator";
 
 import {
   getAllPayments,
@@ -31,6 +32,8 @@ router
 router
   .route("/:id")
   .get(
+    param("id").notEmpty().withMessage("Payment ID is required"),
+    handleValidationErrors,
     canPerformAction([rolesAction.admin, rolesAction.student]),
     getPaymentById
   )
@@ -40,6 +43,11 @@ router
     handleValidationErrors,
     updatePayment
   )
-  .delete(canPerformAction([rolesAction.admin]), deletePayment);
+  .delete(
+    param("id").notEmpty().withMessage("Payment ID is required"),
+    handleValidationErrors,
+    canPerformAction([rolesAction.admin]),
+    deletePayment
+  );
 
 export default router;

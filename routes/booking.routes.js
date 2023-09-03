@@ -1,6 +1,7 @@
 import express from "express";
 import canPerformAction from "../middlewares/canPerformAction.js";
 import { rolesAction } from "../rolesAction.js";
+import param from "express-validator";
 
 import {
   getAllBookings,
@@ -38,6 +39,8 @@ router
 router
   .route("/:id")
   .get(
+    param("id").notEmpty().withMessage("Booking ID is required"),
+    handleValidationErrors,
     canPerformAction([
       rolesAction.admin,
       rolesAction.instructor,
@@ -52,6 +55,8 @@ router
     updateBooking
   )
   .delete(
+    param("id").notEmpty().withMessage("Booking ID is required"),
+    handleValidationErrors,
     canPerformAction([rolesAction.admin, rolesAction.instructor]),
     deleteBooking
   );

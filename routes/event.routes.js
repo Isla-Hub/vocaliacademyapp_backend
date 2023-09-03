@@ -22,12 +22,20 @@ const router = express.Router();
 
 router
   .route("/")
-  .get(canPerformAction([
-    rolesAction.admin,
-    rolesAction.instructor,
-    rolesAction.student,
-  ]), getAllEvents)
-  .post(createEventValidation, handleValidationErrors, canPerformAction([rolesAction.admin]), createEvent);
+  .get(
+    canPerformAction([
+      rolesAction.admin,
+      rolesAction.instructor,
+      rolesAction.student,
+    ]),
+    getAllEvents
+  )
+  .post(
+    canPerformAction([rolesAction.admin]),
+    createEventValidation,
+    handleValidationErrors,
+    createEvent
+  );
 router
   .route("/:id")
   .get(
@@ -40,7 +48,12 @@ router
     ]),
     getEventById
   )
-  .put(updateEventValidation, handleValidationErrors, canPerformAction([rolesAction.admin]), updateEvent)
+  .put(
+    canPerformAction([rolesAction.admin]),
+    updateEventValidation,
+    handleValidationErrors,
+    updateEvent
+  )
   .delete(
     param("id").notEmpty().withMessage("Event ID is required"),
     handleValidationErrors,
