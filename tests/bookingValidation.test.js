@@ -86,7 +86,6 @@ beforeAll(async () => {
     comments: [
       {
         by: student._id,
-        date: new Date(),
         content: "I will not be able to attend ",
       },
     ],
@@ -99,7 +98,6 @@ beforeAll(async () => {
   newBooking.instructor = instructor._id;
   newBooking.room = room._id;
   newBooking.comments[0].by = student._id;
-  newBooking.comments[0].date = booking.startTime;
 
   agent = await getAuthenticatedAgent(app);
 });
@@ -118,13 +116,15 @@ describe("createBookingValidation", () => {
       { name: "student", message: "The student field is required." },
       { name: "instructor", message: "The instructor field is required." },
       { name: "room", message: "The room field is required." },
-      { name: "cancelled", message: "The cancelled field cannot be empty." },
+      {
+        name: "cancelled",
+        message: "The cancelled field must be a boolean value.",
+      },
       {
         name: "comments",
         value: [
           {
             by: "",
-            date: "Wed Jan 27 2021 11:00:00 GMT+1000 (AEST)",
             content: "This comments is a test",
           },
         ],
@@ -135,18 +135,6 @@ describe("createBookingValidation", () => {
         value: [
           {
             by: "64eb5d8a67ff3b98f2ab47a0",
-            date: "",
-            content: "This comments is a test",
-          },
-        ],
-        message: "The date field cannot be empty for each element of comments.",
-      },
-      {
-        name: "comments",
-        value: [
-          {
-            by: "64eb5d8a67ff3b98f2ab47a0",
-            date: "Wed Jan 27 2021 11:00:00 GMT+1000 (AEST)",
             content: "",
           },
         ],
@@ -172,11 +160,6 @@ describe("createBookingValidation", () => {
 
   test("Validation works correctly for invalid fields", async () => {
     const invalidFields = [
-      {
-        name: "createdAt",
-        value: -10,
-        message: "The createdAt field must be a valid ISO8601 date.",
-      },
       {
         name: "startTime",
         value: -5,
@@ -223,7 +206,6 @@ describe("createBookingValidation", () => {
         value: [
           {
             by: 585,
-            date: "Wed Jan 27 2021 11:00:00 GMT+1000 (AEST)",
             content: "This comments is a test",
           },
         ],
@@ -234,18 +216,6 @@ describe("createBookingValidation", () => {
         value: [
           {
             by: "64eb5d8a67ff3b98f2ab47a0",
-            date: 55,
-            content: "This comments is a test",
-          },
-        ],
-        message: "The date field must be a valid ISO8601 date.",
-      },
-      {
-        name: "comments",
-        value: [
-          {
-            by: "64eb5d8a67ff3b98f2ab47a0",
-            date: "Wed Jan 27 2021 11:00:00 GMT+1000 (AEST)",
             content: 5,
           },
         ],
@@ -277,7 +247,6 @@ describe("createBookingValidation", () => {
       comments: [
         {
           by: mongoose.Types.ObjectId(),
-          date: newBooking.comments[0].date.toISOString(),
           content: "This is a valid comment.",
         },
       ],
@@ -491,6 +460,7 @@ describe("updateBookingValidation", () => {
   });
   test("Validation works correctly for valid fields", async () => {
     let validFields = [
+      { name: "createdAt", value: "2023-07-23T14:00:00.000Z" },
       { name: "startTime", value: "2023-07-23T14:00:00.000Z" },
       { name: "endTime", value: "2023-07-23T14:05:00.000Z" },
       { name: "bookedBy", value: newBooking.bookedBy.toString() },

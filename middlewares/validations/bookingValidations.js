@@ -4,8 +4,6 @@ import { string } from "sharp/lib/is";
 const createBookingValidation = [
   body("createdAt")
     .optional()
-    .notEmpty()
-    .withMessage("The createdAt field cannot be empty.")
     .isISO8601()
     .withMessage("The createdAt field must be a valid ISO8601 date.")
     .toDate(),
@@ -41,14 +39,10 @@ const createBookingValidation = [
     .withMessage("The room field must be a valid MongoDB ObjectId."),
   body("cancelled")
     .optional()
-    .notEmpty()
-    .withMessage("The cancelled field cannot be empty.")
     .isBoolean()
     .withMessage("The cancelled field must be a boolean value."),
   body("comments")
     .optional()
-    .notEmpty()
-    .withMessage("The comments field cannot be empty.")
     .isArray({ min: 1 })
     .withMessage(
       "The comments field must be an array with at least one element."
@@ -59,8 +53,7 @@ const createBookingValidation = [
     .isString()
     .withMessage("The by field must be a string."),
   body("comments.*.date")
-    .notEmpty()
-    .withMessage("The date field cannot be empty for each element of comments.")
+    .optional()
     .isISO8601()
     .withMessage("The date field must be a valid ISO8601 date."),
   body("comments.*.content")
