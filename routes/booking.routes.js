@@ -1,7 +1,7 @@
 import express from "express";
 import canPerformAction from "../middlewares/canPerformAction.js";
 import { rolesAction } from "../rolesAction.js";
-import param from "express-validator";
+import { param } from "express-validator";
 
 import {
   getAllBookings,
