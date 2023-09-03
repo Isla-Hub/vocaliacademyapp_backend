@@ -1,5 +1,4 @@
-import { body } from "express-validator";
-import { string } from "sharp/lib/is";
+import { body, param } from "express-validator";
 
 const createBookingValidation = [
   body("createdAt")
@@ -11,12 +10,14 @@ const createBookingValidation = [
     .notEmpty()
     .withMessage("The startTime field is required.")
     .isISO8601()
-    .withMessage("The startTime field must be a valid ISO8601 date."),
+    .withMessage("The startTime field must be a valid ISO8601 date.")
+    .toDate(),
   body("endTime")
     .notEmpty()
     .withMessage("The endTime field is required.")
     .isISO8601()
-    .withMessage("The endTime field must be a valid ISO8601 date."),
+    .withMessage("The endTime field must be a valid ISO8601 date.")
+    .toDate(),
   body("bookedBy")
     .notEmpty()
     .withMessage("The bookedBy field is required.")
@@ -55,7 +56,8 @@ const createBookingValidation = [
   body("comments.*.date")
     .optional()
     .isISO8601()
-    .withMessage("The date field must be a valid ISO8601 date."),
+    .withMessage("The date field must be a valid ISO8601 date.")
+    .toDate(),
   body("comments.*.content")
     .notEmpty()
     .withMessage("The content field is required for each element of comments.")
@@ -64,24 +66,32 @@ const createBookingValidation = [
 ];
 
 const updateBookingValidation = [
+  param("id")
+    .notEmpty()
+    .withMessage("Booking ID is required")
+    .isMongoId()
+    .withMessage("The Booking ID param must be a valid MongoDB ObjectId."),
   body("createdAt")
     .optional()
     .notEmpty()
     .withMessage("The createdAt field cannot be empty.")
     .isISO8601()
-    .withMessage("The createdAt field must be a valid ISO8601 date."),
+    .withMessage("The createdAt field must be a valid ISO8601 date.")
+    .toDate(),
   body("startTime")
     .optional()
     .notEmpty()
     .withMessage("The startTime field cannot be empty.")
     .isISO8601()
-    .withMessage("The startTime field must be a valid ISO8601 date."),
+    .withMessage("The startTime field must be a valid ISO8601 date.")
+    .toDate(),
   body("endTime")
     .optional()
     .notEmpty()
     .withMessage("The endTime field cannot be empty.")
     .isISO8601()
-    .withMessage("The endTime field must be a valid ISO8601 date."),
+    .withMessage("The endTime field must be a valid ISO8601 date.")
+    .toDate(),
   body("bookedBy")
     .optional()
     .notEmpty()
@@ -131,7 +141,8 @@ const updateBookingValidation = [
     .notEmpty()
     .withMessage("The date field cannot be empty for each element of comments.")
     .isISO8601()
-    .withMessage("The date field must be a valid ISO8601 date."),
+    .withMessage("The date field must be a valid ISO8601 date.")
+    .toDate(),
   body("comments.*.content")
     .optional()
     .notEmpty()
