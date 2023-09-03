@@ -2,6 +2,8 @@ import User from "../mongodb/models/user.js";
 import bcrypt from "bcrypt";
 import { generateAccessToken } from "../middlewares/jwt.js";
 import { decode } from "jsonwebtoken";
+import randtoken from "rand-token";
+
 const login = async (req, res) => {
   try {
     if (!req.body.email || !req.body.password) {
@@ -25,8 +27,12 @@ const login = async (req, res) => {
     }
     const token = generateAccessToken({ userId: user._id, role: user.role });
     const { exp } = decode(token);
+    const refreshToken = randtoken.uid(256);
+    user.refreshToken = refreshToken;
+    await user.save();
     return res.status(200).json({
       token,
+      refreshToken,
       expiresIn: exp,
       userId: user._id.toString(),
     });
@@ -35,4 +41,16 @@ const login = async (req, res) => {
   }
 };
 
-export { login };
+const rejectRefreshToken = async (req, res) => {
+  try {
+    const refreshToken = req.body.refreshToken;
+    if (refreshToken in refreshTokens) {
+      delete refreshTokens[refreshToken];
+    }
+    return res.status(200).json({ message: "Refresh token rejected" });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export { login, rejectRefreshToken };
