@@ -46,7 +46,8 @@ const updateRoomValidation = [
     .notEmpty()
     .withMessage("The createdAt field cannot be empty.")
     .isISO8601()
-    .withMessage("The createdAt field must be a valid ISO8601 date."),
+    .withMessage("The createdAt field must be a valid ISO8601 date.")
+    .isDate(),
 ];
 
 export { createRoomValidation, updateRoomValidation };
