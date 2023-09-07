@@ -4,6 +4,7 @@ import * as dotenv from "dotenv";
 import { getAuthenticatedAgent } from "./utils/authentication";
 import { clear, close, connect } from "./config/db";
 import mongoose from "mongoose";
+import { v2 as cloudinary } from 'cloudinary';
 
 dotenv.config();
 
@@ -37,6 +38,11 @@ beforeAll(async () => {
     password: "test1234",
   });
   agent = await getAuthenticatedAgent(app);
+  cloudinary.config({ 
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
 });
 
 beforeEach(() => {
