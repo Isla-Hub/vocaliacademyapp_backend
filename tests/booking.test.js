@@ -13,8 +13,8 @@ const app = createServer();
 let agent;
 
 let newBooking = {
-  startTime: "Wed Jan 27 2021 10:00:00 GMT+1000 (AEST)",
-  endTime: "Wed Jan 27 2021 11:00:00 GMT+1000 (AEST)",
+  startTime: "2023-07-23T14:08:00.000Z",
+  endTime: "2023-07-23T14:09:00.000Z",
   comments: [
     {
       content: "I will not be able to attend ",
@@ -75,8 +75,8 @@ beforeAll(async () => {
   await room.save();
 
   booking = await Booking.create({
-    startTime: "Wed Jan 27 2021 10:00:00 GMT+1000 (AEST)",
-    endTime: "Wed Jan 27 2021 11:00:00 GMT+1000 (AEST)",
+    startTime: "2023-07-23T14:09:00.000Z",
+    endTime: "2023-07-23T14:10:00.000Z",
     bookedBy: instructor._id,
     student: student._id,
     instructor: instructor._id,
@@ -106,6 +106,7 @@ afterAll(async () => {
 
 describe("POST /api/v1/bookings", () => {
   it("should create a new booking", async () => {
+    console.log("******", newBooking);
     const response = await agent
       .post("/api/v1/bookings")
       .send(newBooking)
