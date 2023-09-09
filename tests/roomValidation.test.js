@@ -200,8 +200,8 @@ describe("updateRoomValidation", () => {
 
     const response = await agent
       .put(`/api/v1/rooms/${room._id}`)
-      .send(requestBody);
-    // .expect(200);
+      .send(requestBody)
+      .expect(200);
 
     for (const field of validFields) {
       expect(response.body[field.name].toString()).toBe(field.value.toString());
