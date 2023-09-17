@@ -59,7 +59,6 @@ const login = async (req, res) => {
 const refreshToken = async (req, res) => {
   try {
     const refreshTokenReq = req.body.refreshToken;
-
     const user = refreshTokens.find(
       (refreshTokenObj) => refreshTokenObj.refreshToken === refreshTokenReq
     );
@@ -67,6 +66,26 @@ const refreshToken = async (req, res) => {
     if (!user) {
       return res.status(401).json({ message: "Invalid refresh token" });
     }
+
+    jwt.verify(
+      refreshTokenReq,
+      process.env.JWT_SECRET_REFRESHTOKEN,
+      (err, data) => {
+        if (err) {
+          if (err.name === "TokenExpiredError") {
+            return res.status(401).json({
+              success: false,
+              expireTime: true,
+              message: "JWT has expired. Please login again.",
+            });
+          }
+          return res.status(422).json({
+            success: false,
+            message: "JWT Verification Issue.",
+          });
+        }
+      }
+    );
 
     const token = generateAccessToken({
       userId: user.userId,

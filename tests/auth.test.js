@@ -14,6 +14,8 @@ describe("Auth controller", () => {
   let userLogin;
   let hashedPassword;
 
+  let refreshToken;
+
   beforeAll(async () => {
     await connect();
     hashedPassword = await bcrypt.hash("password123", 10);
@@ -70,10 +72,13 @@ describe("Auth controller", () => {
       expect(res.body.token).toBeDefined();
       expect(res.body.expiresIn).toBeDefined();
       expect(res.body.userId).toEqual(userLogin._id.toString());
+      expect(res.body.refreshToken).toBeDefined();
 
       const decodedToken = jwt.decode(res.body.token);
       expect(decodedToken.userId).toEqual(userLogin._id.toString());
       expect(decodedToken.role).toEqual(userLogin.role);
+
+      refreshToken = res.body.refreshToken;
     });
     test("should return 401 if user account is deactivated", async () => {
       await User.updateOne({ _id: userLogin._id }, { isActive: false });
@@ -111,6 +116,42 @@ describe("Auth controller", () => {
 
       response = await request(app).get("/api/v1/services");
       expect(response.statusCode).toEqual(401);
+    });
+  });
+
+  describe("POST /refreshToken", () => {
+    test("should return a 401 error if refresh token is invalid", async () => {
+      const res = await request(app).post("/api/v1/auth/refreshToken").send({});
+      expect(res.statusCode).toEqual(401);
+      expect(res.body.message).toEqual("Invalid refresh token");
+    });
+
+    test("should return a 401 error if refresh token is expired", async () => {
+      const expiredToken = jwt.sign(
+        { userId: "mockUserId", role: "user" },
+        "tu_clave_secreta",
+        { expiresIn: "1s" }
+      );
+      const res = await request(app)
+        .post("/api/v1/auth/refreshToken")
+        .send({ refreshToken: expiredToken });
+      expect(res.statusCode).toEqual(401);
+      expect(res.body.message).toEqual("JWT has expired. Please login again.");
+    });
+
+    test("shoult return a 200 and a new access token", async () => {
+      const res = await request(app)
+        .post("/api/v1/auth/refreshToken")
+        .send({ refreshToken });
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.token).toBeDefined();
+      expect(res.body.expiresIn).toBeDefined();
+      expect(res.body.userId).toEqual(userLogin._id.toString());
+      expect(res.body.refreshToken).toBeDefined();
+
+      const decodedToken = jwt.decode(res.body.token);
+      expect(decodedToken.userId).toEqual(userLogin._id.toString());
+      expect(decodedToken.role).toEqual(userLogin.role);
     });
   });
 });
