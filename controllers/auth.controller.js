@@ -93,6 +93,16 @@ const refreshToken = async (req, res) => {
   }
 };
 
-const rejectRefreshToken = async (req, res) => {};
+const rejectRefreshToken = async (req, res) => {
+  try {
+    const refreshTokenReq = req.body.refreshToken;
+    refreshTokens = refreshTokens.filter(
+      (refreshTokenObj) => refreshTokenObj.refreshToken !== refreshTokenReq
+    );
+    return res.status(200).json({ message: "Refresh token rejected" });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error" });
+  }
+};
 
 export { login, refreshToken, rejectRefreshToken };
