@@ -4,7 +4,13 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 function generateAccessToken(data) {
-  return jwt.sign(data, process.env.JWT_SECRET, { expiresIn: 300 });
+  return jwt.sign(data, process.env.JWT_SECRET, { expiresIn: 60 });
+}
+
+function generateRefreshToken(data) {
+  return jwt.sign(data, process.env.JWT_SECRET_REFRESHTOKEN, {
+    expiresIn: 300,
+  });
 }
 
 function authenticateToken(req, res, next) {
@@ -35,4 +41,4 @@ function authenticateToken(req, res, next) {
   });
 }
 
-export { generateAccessToken, authenticateToken };
+export { generateAccessToken, generateRefreshToken, authenticateToken };

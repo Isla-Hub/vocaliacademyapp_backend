@@ -1,8 +1,11 @@
 import User from "../mongodb/models/user.js";
 import bcrypt from "bcrypt";
-import { generateAccessToken } from "../middlewares/jwt.js";
-import { decode } from "jsonwebtoken";
-import randtoken from "rand-token";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+} from "../middlewares/jwt.js";
+
+let refreshTokens = {};
 
 const login = async (req, res) => {
   try {
@@ -26,16 +29,37 @@ const login = async (req, res) => {
       return res.status(401).json({ message: "User account is deactivated" });
     }
     const token = generateAccessToken({ userId: user._id, role: user.role });
-    const { exp } = decode(token);
-    const refreshToken = randtoken.uid(256);
-    user.refreshToken = refreshToken;
-    await user.save();
+
+    const refreshToken = generateRefreshToken({
+      userId: user._id,
+      role: user.role,
+    });
+
+    refreshTokens[refreshToken] = user._id;
+
+    console.log("**********", refreshTokens);
+
     return res.status(200).json({
       token,
       refreshToken,
-      expiresIn: exp,
       userId: user._id.toString(),
     });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+const refreshToken = async (req, res) => {
+  try {
+    const refreshToken = req.body.refreshToken;
+    if (refreshToken in refreshTokens) {
+      const user = await User.findById(refreshTokens[refreshToken]);
+      if (!user) {
+        return res.status(401).json({ message: "Invalid refresh token" });
+      }
+      const token = generateAccessToken({ userId: user._id, role: user.role });
+      return res.status(200).json({ token });
+    }
   } catch (error) {
     return res.status(500).json({ message: "Server error" });
   }
@@ -53,4 +77,4 @@ const rejectRefreshToken = async (req, res) => {
   }
 };
 
-export { login, rejectRefreshToken };
+export { login, refreshToken, rejectRefreshToken };
