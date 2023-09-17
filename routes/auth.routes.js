@@ -9,7 +9,7 @@ import {
 const router = express.Router();
 
 router.route("/login").post(login);
-router.route("/refresh").post(refreshToken);
+router.route("/refreshToken").post(refreshToken);
 router.route("/rejectRefreshToken").post(rejectRefreshToken);
 
 export default router;

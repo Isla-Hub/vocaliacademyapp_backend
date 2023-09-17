@@ -5,7 +5,9 @@ import {
   generateRefreshToken,
 } from "../middlewares/jwt.js";
 
-let refreshTokens = {};
+import { decode } from "jsonwebtoken";
+
+let refreshTokens = [];
 
 const login = async (req, res) => {
   try {
@@ -30,17 +32,22 @@ const login = async (req, res) => {
     }
     const token = generateAccessToken({ userId: user._id, role: user.role });
 
+    const { exp } = decode(token);
+
     const refreshToken = generateRefreshToken({
       userId: user._id,
       role: user.role,
     });
 
-    refreshTokens[refreshToken] = user._id;
-
-    console.log("**********", refreshTokens);
+    refreshTokens.push({
+      refreshToken: refreshToken,
+      userId: user._id,
+      role: user.role,
+    });
 
     return res.status(200).json({
       token,
+      expiresIn: exp,
       refreshToken,
       userId: user._id.toString(),
     });
@@ -51,30 +58,41 @@ const login = async (req, res) => {
 
 const refreshToken = async (req, res) => {
   try {
-    const refreshToken = req.body.refreshToken;
-    if (refreshToken in refreshTokens) {
-      const user = await User.findById(refreshTokens[refreshToken]);
-      if (!user) {
-        return res.status(401).json({ message: "Invalid refresh token" });
-      }
-      const token = generateAccessToken({ userId: user._id, role: user.role });
-      return res.status(200).json({ token });
+    const refreshTokenReq = req.body.refreshToken;
+
+    const user = refreshTokens.find(
+      (refreshTokenObj) => refreshTokenObj.refreshToken === refreshTokenReq
+    );
+
+    if (!user) {
+      return res.status(401).json({ message: "Invalid refresh token" });
     }
+
+    const token = generateAccessToken({
+      userId: user.userId,
+      role: user.role,
+    });
+
+    const { exp } = decode(token);
+
+    const refreshToken = generateRefreshToken({
+      userId: user.userId,
+      role: user.role,
+    });
+
+    user.refreshToken = refreshToken;
+
+    return res.status(200).json({
+      token,
+      expiresIn: exp,
+      refreshToken,
+      userId: user.userId.toString(),
+    });
   } catch (error) {
     return res.status(500).json({ message: "Server error" });
   }
 };
 
-const rejectRefreshToken = async (req, res) => {
-  try {
-    const refreshToken = req.body.refreshToken;
-    if (refreshToken in refreshTokens) {
-      delete refreshTokens[refreshToken];
-    }
-    return res.status(200).json({ message: "Refresh token rejected" });
-  } catch (error) {
-    return res.status(500).json({ message: "Server error" });
-  }
-};
+const rejectRefreshToken = async (req, res) => {};
 
 export { login, refreshToken, rejectRefreshToken };
