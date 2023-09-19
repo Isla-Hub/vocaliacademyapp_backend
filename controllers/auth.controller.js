@@ -6,6 +6,7 @@ import {
 } from "../middlewares/jwt.js";
 
 import { decode } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 let refreshTokens = [];
 
@@ -59,11 +60,11 @@ const login = async (req, res) => {
 const refreshToken = async (req, res) => {
   try {
     const refreshTokenReq = req.body.refreshToken;
-    const user = refreshTokens.find(
+    const refreshTokenExistsinArray = refreshTokens.find(
       (refreshTokenObj) => refreshTokenObj.refreshToken === refreshTokenReq
     );
 
-    if (!user) {
+    if (!refreshTokenExistsinArray) {
       return res.status(401).json({ message: "Invalid refresh token" });
     }
 
@@ -84,28 +85,43 @@ const refreshToken = async (req, res) => {
             message: "JWT Verification Issue.",
           });
         }
+
+        req.userId = data.userId;
+        req.role = data.role;
       }
     );
 
+    const userInDB = await User.findById(req.userId);
+
+    console.log("**************", req.userId);
+
+    if (
+      !userInDB ||
+      !userInDB.isActive ||
+      userInDB.role !== refreshTokenExistsinArray.role
+    ) {
+      return res.status(401).json({ message: "Invalid user information" });
+    }
+
     const token = generateAccessToken({
-      userId: user.userId,
-      role: user.role,
+      userId: refreshTokenExistsinArray.userId,
+      role: refreshTokenExistsinArray.role,
     });
 
     const { exp } = decode(token);
 
     const refreshToken = generateRefreshToken({
-      userId: user.userId,
-      role: user.role,
+      userId: refreshTokenExistsinArray.userId,
+      role: refreshTokenExistsinArray.role,
     });
 
-    user.refreshToken = refreshToken;
+    refreshTokenExistsinArray.refreshToken = refreshToken;
 
     return res.status(200).json({
       token,
       expiresIn: exp,
       refreshToken,
-      userId: user.userId.toString(),
+      userId: refreshTokenExistsinArray.userId.toString(),
     });
   } catch (error) {
     return res.status(500).json({ message: "Server error" });
