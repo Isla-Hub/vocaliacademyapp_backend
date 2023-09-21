@@ -13,6 +13,7 @@ const app = createServer();
 describe("Auth controller", () => {
   let userLogin;
   let hashedPassword;
+  let userWithExpiredToken;
 
   let refreshToken;
 
@@ -22,7 +23,6 @@ describe("Auth controller", () => {
     userLogin = await User.create({
       email: "userauthlogin@test.com",
       password: hashedPassword,
-      role: "user",
       name: "UserAuthLogin",
       lastName: "UserAuthLogin LastName",
       phoneNumber: "1234567890",
@@ -30,6 +30,17 @@ describe("Auth controller", () => {
       role: "student",
     });
     await userLogin.save();
+
+    userWithExpiredToken = await User.create({
+      email: "userauthexpired@test.com",
+      password: hashedPassword,
+      name: "UserAuthExpired",
+      lastName: "UserAuthExpired LastName",
+      phoneNumber: "1234567890",
+      dateOfBirth: new Date(),
+      role: "student",
+    });
+    await userWithExpiredToken.save();
   });
 
   afterEach(async () => {
@@ -87,6 +98,8 @@ describe("Auth controller", () => {
         .send({ email: userLogin.email, password: "password123" });
       expect(res.statusCode).toEqual(401);
       expect(res.body.message).toEqual("User account is deactivated");
+
+      await User.updateOne({ _id: userLogin._id }, { isActive: true });
     });
     test("should return 500 if an error occurs", async () => {
       jest
@@ -126,8 +139,6 @@ describe("Auth controller", () => {
       expect(res.body.message).toEqual("Invalid refresh token");
     });
 
-    //tokenExpired
-
     test("should return 500 if an error occurs", async () => {
       jest
         .spyOn(User, "findOne")
@@ -139,15 +150,6 @@ describe("Auth controller", () => {
       expect(res.body.message).toEqual("Server error");
     });
 
-    test("should return 401 if user not found", async () => {
-      await User.findByIdAndDelete(userLogin._id);
-      const res = await request(app)
-        .post("/api/v1/auth/refreshToken")
-        .send({ refreshToken });
-      expect(res.statusCode).toEqual(401);
-      expect(res.body.message).toEqual("Invalid user information");
-    });
-
     test("should return 401 if user account is deactivated", async () => {
       await User.updateOne({ _id: userLogin._id }, { isActive: false });
       const res = await request(app)
@@ -155,6 +157,7 @@ describe("Auth controller", () => {
         .send({ refreshToken });
       expect(res.statusCode).toEqual(401);
       expect(res.body.message).toEqual("Invalid user information");
+      await User.updateOne({ _id: userLogin._id }, { isActive: true });
     });
 
     test("should return 401 if user role is invalid", async () => {
@@ -164,21 +167,33 @@ describe("Auth controller", () => {
         .send({ refreshToken });
       expect(res.statusCode).toEqual(401);
       expect(res.body.message).toEqual("Invalid user information");
+      await User.updateOne({ _id: userLogin._id }, { role: "student" });
     });
 
-    // test("should return 200 if user exists in DB, user is active, user role is valid and refresh token is correct", async () => {
-    //   const res = await request(app)
-    //     .post("/api/v1/auth/refreshToken")
-    //     .send({ refreshToken });
-    //   expect(res.statusCode).toEqual(200);
-    //   expect(res.body.token).toBeDefined();
-    //   expect(res.body.expiresIn).toBeDefined();
-    //   expect(res.body.userId).toEqual(userLogin._id.toString());
-    //   expect(res.body.refreshToken).toBeDefined();
+    test("should return 200 if user exists in DB, user is active, user role is valid and refresh token is correct", async () => {
+      const res = await request(app)
+        .post("/api/v1/auth/refreshToken")
+        .send({ refreshToken });
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.token).toBeDefined();
+      expect(res.body.expiresIn).toBeDefined();
+      expect(res.body.userId).toEqual(userLogin._id.toString());
+      expect(res.body.refreshToken).toBeDefined();
 
-    //   const decodedToken = jwt.decode(res.body.token);
-    //   expect(decodedToken.userId).toEqual(userLogin._id.toString());
-    //   expect(decodedToken.role).toEqual(userLogin.role);
-    // });
+      const decodedToken = jwt.decode(res.body.token);
+      expect(decodedToken.userId).toEqual(userLogin._id.toString());
+      expect(decodedToken.role).toEqual(userLogin.role);
+
+      refreshToken = res.body.refreshToken;
+    });
+
+    test("should return 401 if user not found", async () => {
+      await User.findByIdAndDelete(userLogin._id);
+      const res = await request(app)
+        .post("/api/v1/auth/refreshToken")
+        .send({ refreshToken });
+      expect(res.statusCode).toEqual(401);
+      expect(res.body.message).toEqual("Invalid user information");
+    });
   });
 });
