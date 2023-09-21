@@ -13,7 +13,7 @@ const app = createServer();
 describe("Auth controller", () => {
   let userLogin;
   let hashedPassword;
-  let userWithExpiredToken;
+  let userToRemoveRefreshToken;
 
   let refreshToken;
 
@@ -31,7 +31,7 @@ describe("Auth controller", () => {
     });
     await userLogin.save();
 
-    userWithExpiredToken = await User.create({
+    userToRemoveRefreshToken = await User.create({
       email: "userauthexpired@test.com",
       password: hashedPassword,
       name: "UserAuthExpired",
@@ -40,7 +40,7 @@ describe("Auth controller", () => {
       dateOfBirth: new Date(),
       role: "student",
     });
-    await userWithExpiredToken.save();
+    await userToRemoveRefreshToken.save();
   });
 
   afterEach(async () => {
@@ -194,6 +194,54 @@ describe("Auth controller", () => {
         .send({ refreshToken });
       expect(res.statusCode).toEqual(401);
       expect(res.body.message).toEqual("Invalid user information");
+    });
+  });
+
+  describe("POST /rejectRefreshToken", () => {
+    test("should return a 401 error if refresh token is invalid", async () => {
+      const res = await request(app)
+        .post("/api/v1/auth/rejectRefreshToken")
+        .send({});
+      expect(res.statusCode).toEqual(401);
+      expect(res.body.message).toEqual("Refresh token is required");
+    });
+
+    test("should return a 401 error if refresh token is invalid", async () => {
+      const res = await request(app)
+        .post("/api/v1/auth/rejectRefreshToken")
+        .send({ refreshToken: "invalid" });
+
+      expect(res.statusCode).toEqual(401);
+      expect(res.body.message).toEqual("Invalid refresh token");
+    });
+
+    test("should return a 200 if refresh token rejected correctly", async () => {
+      const loginUserToRemoveRefreshToken = await request(app)
+        .post("/api/v1/auth/login")
+        .send({
+          email: userToRemoveRefreshToken.email,
+          password: "password123",
+        });
+      expect(loginUserToRemoveRefreshToken.statusCode).toEqual(200);
+      expect(loginUserToRemoveRefreshToken.body.token).toBeDefined();
+      expect(loginUserToRemoveRefreshToken.body.expiresIn).toBeDefined();
+      expect(loginUserToRemoveRefreshToken.body.userId).toEqual(
+        userToRemoveRefreshToken._id.toString()
+      );
+      expect(loginUserToRemoveRefreshToken.body.refreshToken).toBeDefined();
+
+      const decodedToken = jwt.decode(loginUserToRemoveRefreshToken.body.token);
+      expect(decodedToken.userId).toEqual(
+        userToRemoveRefreshToken._id.toString()
+      );
+      expect(decodedToken.role).toEqual(userToRemoveRefreshToken.role);
+
+      refreshToken = loginUserToRemoveRefreshToken.body.refreshToken;
+      const res = await request(app)
+        .post("/api/v1/auth/rejectRefreshToken")
+        .send({ refreshToken });
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.message).toEqual("Refresh token rejected");
     });
   });
 });
