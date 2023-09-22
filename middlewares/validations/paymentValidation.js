@@ -30,6 +30,12 @@ const createPaymentValidation = [
     .optional()
     .isISO8601()
     .withMessage("The createdAt field must be a valid ISO8601 date."),
+  body("status")
+    .optional()
+    .isIn(["Pending", "Validated", "Incorrect"])
+    .withMessage(
+      'The status field must be "Pending", "Validated" or "Incorrect".'
+    ),
 ];
 
 const updatePaymentValidation = [
@@ -74,6 +80,14 @@ const updatePaymentValidation = [
     .withMessage("The createdAt field cannot be empty.")
     .isISO8601()
     .withMessage("The createdAt field must be a valid ISO8601 date."),
+  body("status")
+    .optional()
+    .notEmpty()
+    .withMessage("The status field cannot be empty.")
+    .isIn(["Pending", "Validated", "Incorrect"])
+    .withMessage(
+      'The status field must be "Pending", "Validated" or "Incorrect".'
+    ),
 ];
 
 export { createPaymentValidation, updatePaymentValidation };
