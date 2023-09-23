@@ -11,7 +11,7 @@ import cors from "cors";
 import morgan from "morgan";
 import { authenticateToken } from "./middlewares/jwt.js";
 import {
-  generalRateLimiter,
+  generalLimiter,
   authLimiter,
 } from "./middlewares/rateLimit.js";
 
@@ -23,7 +23,7 @@ function createServer() {
   app.use(morgan("dev"));
 
   app.use(/^(?!.*\/auth).*$/, authenticateToken);
-  app.use(generalRateLimiter);
+  app.use(generalLimiter);
   
   app.use("/api/v1/users", userRouter);
   app.use("/api/v1/services", serviceRouter);
