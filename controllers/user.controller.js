@@ -3,10 +3,11 @@ import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 import {v2 as cloudinary} from 'cloudinary';
           
-cloudinary.config({ 
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+cloudinary.config({
+  cloud_name: "dgtuznrav",
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true,
 });
 
 const getAllUsers = async (req, res) => {
@@ -49,7 +50,6 @@ const createUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const user = await User.create({ ...req.body, password: hashedPassword });
 
-    // Verificar si se está cargando una imagen de avatar y guardarla en Cloudinary
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path);
       user.avatar = result.secure_url;
@@ -84,16 +84,10 @@ const updateUser = async (req, res) => {
         message: "Another user is using the provided email address",
       });
     }
-
-    // Verificar si se está cargando una nueva imagen de avatar y actualizarla en Cloudinary
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path);
       paramUser.avatar = result.secure_url;
     }
-
-    // Actualizar otros campos del usuario según sea necesario
-    // ...
-
     await paramUser.save();
 
     const { password: _, ...userWithoutPassword } = paramUser._doc;
