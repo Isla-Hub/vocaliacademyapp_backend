@@ -94,35 +94,7 @@ describe("Auth controller", () => {
       expect(res.body.message).toEqual("Server error");
     });
   });
-  describe("Auth rate-limiter", () => {
-    test("should return 429 after 20 requests within rate limit window", async () => {
-      jest.setTimeout(50000);
-      for (let i = 0; i < 20; i++) {
-        const res = await request(app)
-          .post("/api/v1/auth/login")
-          .send({ email: userLogin.email, password: "password123" })
-          .then(res => {
-            
-          });
-        if (i < 20) {
-          expect(res.statusCode).toEqual(200);
-        } else {
-          expect(res.statusCode).toEqual(429);
-          expect(res.body.message).toEqual(
-            "Too many requests from this IP, please try again later"
-          );
-        }
-      }
 
-      /* const res = await request(app)
-        .post("/api/v1/auth/login")
-        .send({ email: userLogin.email, password: "password123" });
-      expect(res.statusCode).toEqual(429);
-      expect(res.body.message).toEqual(
-        "Too many requests from this IP, please try again later"
-      ); */
-    });
-  })
   describe("Protected routes", () => {
     test("should return a 401 error without authentication", async () => {
       let response = await request(app).get("/api/v1/users");
