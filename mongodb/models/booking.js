@@ -39,19 +39,9 @@ const BookingSchema = new mongoose.Schema({
   },
   comments: [
     {
-      by: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-      },
-      date: {
-        type: Date,
-        default: Date.now,
-      },
-      content: {
-        type: String,
-        required: true,
-      },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Comment",
+      default: [],
     },
   ],
 });

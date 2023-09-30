@@ -3,7 +3,9 @@ const canPerformAction = (roles) => {
     if (roles && roles.includes(req.role)) {
       next();
     } else {
-      res.status(401).json({ message: error.message });
+      res
+        .status(401)
+        .json({ message: "User has no permission to perform this action." });
     }
   };
 };

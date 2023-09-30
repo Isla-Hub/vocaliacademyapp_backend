@@ -16,11 +16,6 @@ let agent;
 let newBooking = {
   startTime: new Date(),
   endTime: new Date(),
-  comments: [
-    {
-      content: "I will not be able to attend ",
-    },
-  ],
 };
 
 let admin;
@@ -83,12 +78,6 @@ beforeAll(async () => {
     student: student._id,
     instructor: instructor._id,
     room: room._id,
-    comments: [
-      {
-        by: student._id,
-        content: "I will not be able to attend ",
-      },
-    ],
   });
 
   await booking.save();
@@ -97,8 +86,7 @@ beforeAll(async () => {
   newBooking.student = student._id;
   newBooking.instructor = instructor._id;
   newBooking.room = room._id;
-  newBooking.comments[0].by = student._id;
-
+  
   agent = await getAuthenticatedAgent(app);
 });
 
@@ -119,27 +107,7 @@ describe("createBookingValidation", () => {
       {
         name: "cancelled",
         message: "The cancelled field must be a boolean value.",
-      },
-      {
-        name: "comments",
-        value: [
-          {
-            by: "",
-            content: "This comments is a test",
-          },
-        ],
-        message: "The by field is required for each element of comments.",
-      },
-      {
-        name: "comments",
-        value: [
-          {
-            by: "64eb5d8a67ff3b98f2ab47a0",
-            content: "",
-          },
-        ],
-        message: "The content field is required for each element of comments.",
-      },
+      }
     ];
 
     for (const field of requiredFields) {
@@ -194,33 +162,7 @@ describe("createBookingValidation", () => {
         name: "cancelled",
         value: "sí",
         message: "The cancelled field must be a boolean value.",
-      },
-      {
-        name: "comments",
-        value: "invalid comment",
-        message:
-          "The comments field must be an array with at least one element.",
-      },
-      {
-        name: "comments",
-        value: [
-          {
-            by: 585,
-            content: "This comments is a test",
-          },
-        ],
-        message: "The by field must be a string.",
-      },
-      {
-        name: "comments",
-        value: [
-          {
-            by: "64eb5d8a67ff3b98f2ab47a0",
-            content: 5,
-          },
-        ],
-        message: "The content field must be a string.",
-      },
+      }
     ];
 
     for (const field of invalidFields) {
@@ -243,13 +185,7 @@ describe("createBookingValidation", () => {
       student: mongoose.Types.ObjectId(),
       instructor: mongoose.Types.ObjectId(),
       room: mongoose.Types.ObjectId(),
-      cancelled: true,
-      comments: [
-        {
-          by: mongoose.Types.ObjectId(),
-          content: "This is a valid comment.",
-        },
-      ],
+      cancelled: true
     };
 
     const validFields = [
@@ -280,11 +216,7 @@ describe("createBookingValidation", () => {
       {
         name: "cancelled",
         value: correctFields.cancelled,
-      },
-      {
-        name: "comments",
-        value: correctFields.comments,
-      },
+      }
     ];
 
     const response = await agent
@@ -332,24 +264,7 @@ describe("updateBookingValidation", () => {
       {
         name: "cancelled",
         message: "The cancelled field cannot be empty.",
-      },
-      {
-        name: "comments",
-        message: "The comments field cannot be empty.",
-      },
-      {
-        name: "comments[0].by",
-        message: "The by field cannot be empty for each element of comments.",
-      },
-      {
-        name: "comments[0].date",
-        message: "The date field cannot be empty for each element of comments.",
-      },
-      {
-        name: "comments[0].content",
-        message:
-          "The content field cannot be empty for each element of comments.",
-      },
+      }
     ];
 
     for (const field of requiredFields) {
@@ -405,46 +320,7 @@ describe("updateBookingValidation", () => {
         name: "cancelled",
         value: "sí",
         message: "The cancelled field must be a boolean value.",
-      },
-      {
-        name: "comments",
-        value: "invalid comment",
-        message:
-          "The comments field must be an array with at least one element.",
-      },
-      {
-        name: "comments",
-        value: [
-          {
-            by: 585,
-            date: "Wed Jan 27 2021 11:00:00 GMT+1000 (AEST)",
-            content: "This comments is a test",
-          },
-        ],
-        message: "The by field must be a string.",
-      },
-      {
-        name: "comments",
-        value: [
-          {
-            by: "64eb5d8a67ff3b98f2ab47a0",
-            date: 88888,
-            content: "This comments is a test",
-          },
-        ],
-        message: "The date field must be a valid ISO8601 date.",
-      },
-      {
-        name: "comments",
-        value: [
-          {
-            by: "64eb5d8a67ff3b98f2ab47a0",
-            date: "Wed Jan 27 2021 11:00:00 GMT+1000 (AEST)",
-            content: 88888,
-          },
-        ],
-        message: "The content field must be a string.",
-      },
+      }
     ];
 
     for (const field of invalidFields) {
@@ -468,16 +344,6 @@ describe("updateBookingValidation", () => {
       { name: "instructor", value: newBooking.instructor.toString() },
       { name: "room", value: newBooking.room.toString() },
       { name: "cancelled", value: false },
-      {
-        name: "comments",
-        value: [
-          {
-            by: newBooking.comments[0].by.toString(),
-            date: "2023-07-23T14:08:00.000Z",
-            content: "This comments is a test",
-          },
-        ],
-      },
     ];
     let requestBody = {};
 

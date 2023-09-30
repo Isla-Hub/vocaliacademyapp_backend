@@ -15,11 +15,6 @@ let agent;
 let newBooking = {
   startTime: "2023-07-23T14:08:00.000Z",
   endTime: "2023-07-23T14:09:00.000Z",
-  comments: [
-    {
-      content: "I will not be able to attend ",
-    },
-  ],
 };
 
 let admin;
@@ -81,12 +76,6 @@ beforeAll(async () => {
     student: student._id,
     instructor: instructor._id,
     room: room._id,
-    comments: [
-      {
-        by: student._id,
-        content: "I will not be able to attend ",
-      },
-    ],
   });
 
   await booking.save();
@@ -95,7 +84,6 @@ beforeAll(async () => {
   newBooking.student = student._id;
   newBooking.instructor = instructor._id;
   newBooking.room = room._id;
-  newBooking.comments[0].by = student._id;
   agent = await getAuthenticatedAgent(app);
 });
 
@@ -106,7 +94,6 @@ afterAll(async () => {
 
 describe("POST /api/v1/bookings", () => {
   it("should create a new booking", async () => {
-    console.log("******", newBooking);
     const response = await agent
       .post("/api/v1/bookings")
       .send(newBooking)
@@ -121,13 +108,7 @@ describe("POST /api/v1/bookings", () => {
     expect(response.body.room).toBe(newBooking.room.toString());
     expect(response.body.cancelled).toBe(false);
     expect(response.body.room).toBe(newBooking.room.toString());
-    expect(response.body.comments[0].by).toBe(
-      newBooking.comments[0].by.toString()
-    );
-    expect(response.body.comments[0].date).toBeTruthy();
-    expect(response.body.comments[0].content).toBe(
-      newBooking.comments[0].content
-    );
+
     expect(response.body.createdAt).toBeTruthy();
 
     // Check the data in the database
@@ -143,11 +124,6 @@ describe("POST /api/v1/bookings", () => {
     );
     expect(dbBooking.room.toString()).toBe(newBooking.room.toString());
     expect(dbBooking.cancelled).toBe(false);
-    expect(dbBooking.comments[0].by.toString()).toBe(
-      newBooking.comments[0].by.toString()
-    );
-    expect(dbBooking.comments[0].date).toBeTruthy();
-    expect(dbBooking.comments[0].content).toBe(newBooking.comments[0].content);
     expect(dbBooking.createdAt).toBeTruthy();
   });
 });
@@ -169,13 +145,6 @@ describe("GET /api/v1/bookings", () => {
     expect(responseBooking.instructor).toBe(booking.instructor.toString());
     expect(responseBooking.room).toBe(booking.room.toString());
     expect(responseBooking.cancelled).toBe(false);
-    expect(responseBooking.comments[0].by).toBe(
-      booking.comments[0].by.toString()
-    );
-    expect(responseBooking.comments[0].date).toBeTruthy();
-    expect(responseBooking.comments[0].content).toBe(
-      booking.comments[0].content
-    );
     expect(responseBooking.createdAt).toBeTruthy();
   });
 });
@@ -194,11 +163,6 @@ describe("GET /api/v1/bookings/:id", () => {
     expect(response.body.instructor).toBe(booking.instructor.toString());
     expect(response.body.room).toBe(booking.room.toString());
     expect(response.body.cancelled).toBe(false);
-    expect(response.body.comments[0].by).toBe(
-      booking.comments[0].by.toString()
-    );
-    expect(response.body.comments[0].date).toBeTruthy();
-    expect(response.body.comments[0].content).toBe(booking.comments[0].content);
     expect(response.body.createdAt).toBeTruthy();
   });
 });
@@ -218,11 +182,6 @@ describe("PUT /api/v1/bookings/:id", () => {
     expect(response.body.instructor).toBe(booking.instructor.toString());
     expect(response.body.room).toBe(booking.room.toString());
     expect(response.body.cancelled).toBe(true);
-    expect(response.body.comments[0].by).toBe(
-      booking.comments[0].by.toString()
-    );
-    expect(response.body.comments[0].date).toBeTruthy();
-    expect(response.body.comments[0].content).toBe(booking.comments[0].content);
     expect(response.body.createdAt).toBeTruthy();
   });
 });
