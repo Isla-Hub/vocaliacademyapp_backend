@@ -19,7 +19,6 @@ describe("Auth limiter", () => {
     userLogin = await User.create({
       email: "userauthlogin@test.com",
       password: hashedPassword,
-      role: "user",
       name: "UserAuthLogin",
       lastName: "UserAuthLogin LastName",
       phoneNumber: "1234567890",
@@ -35,7 +34,6 @@ describe("Auth limiter", () => {
   });
 
   test("should return 429 after 20 requests within rate limit window", async () => {
-    // jest.setTimeout(50000);
     for (let i = 0; i < 21; i++) {
       const res = await request(app)
         .post("/api/v1/auth/login")
