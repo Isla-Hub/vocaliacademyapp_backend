@@ -4,7 +4,6 @@ const PaymentSchema = new mongoose.Schema({
   paidBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   paidAt: {
     type: Date,
-    default: Date.now,
   },
   product: {
     type: mongoose.Schema.Types.ObjectId,
@@ -24,6 +23,11 @@ const PaymentSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
+  },
+  status: {
+    type: String,
+    enum: ["Pending", "Validated", "Incorrect"],
+    default: "Pending",
   },
 });
 
