@@ -60,11 +60,11 @@ const login = async (req, res) => {
 const refreshToken = async (req, res) => {
   try {
     const refreshTokenReq = req.body.refreshToken;
-    const refreshTokenExistsinArray = refreshTokens.find(
+    const foundRefreshToken = refreshTokens.find(
       (refreshTokenObj) => refreshTokenObj.refreshToken === refreshTokenReq
     );
 
-    if (!refreshTokenExistsinArray) {
+    if (!foundRefreshToken) {
       return res.status(401).json({ message: "Invalid refresh token" });
     }
 
@@ -93,35 +93,33 @@ const refreshToken = async (req, res) => {
 
     const userInDB = await User.findById(req.userId);
 
-    console.log("**************", req.userId);
-
     if (
       !userInDB ||
       !userInDB.isActive ||
-      userInDB.role !== refreshTokenExistsinArray.role
+      userInDB.role !== foundRefreshToken.role
     ) {
       return res.status(401).json({ message: "Invalid user information" });
     }
 
     const token = generateAccessToken({
-      userId: refreshTokenExistsinArray.userId,
-      role: refreshTokenExistsinArray.role,
+      userId: userInDB._id,
+      role: userInDB.role,
     });
 
     const { exp } = decode(token);
 
     const refreshToken = generateRefreshToken({
-      userId: refreshTokenExistsinArray.userId,
-      role: refreshTokenExistsinArray.role,
+      userId: userInDB._id,
+      role: userInDB.role,
     });
 
-    refreshTokenExistsinArray.refreshToken = refreshToken;
+    foundRefreshToken.refreshToken = refreshToken;
 
     return res.status(200).json({
       token,
       expiresIn: exp,
       refreshToken,
-      userId: refreshTokenExistsinArray.userId.toString(),
+      userId: foundRefreshToken.userId.toString(),
     });
   } catch (error) {
     return res.status(500).json({ message: "Server error" });
