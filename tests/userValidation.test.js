@@ -47,11 +47,11 @@ afterAll(async () => {
 describe("createUserValidation", () => {
   test("Empty required fields returns error", async () => {
     const requiredFields = [
-      { name: "name", message: "Name is required" },
-      { name: "lastName", message: "Last Name is required" },
-      { name: "email", message: "Email is required" },
-      { name: "phoneNumber", message: "Phone number is required" },
-      { name: "dateOfBirth", message: "Date of birth is required" },
+      { name: "name", message: "The name field is required." },
+      { name: "lastName", message: "The Last Name field is required." },
+      { name: "email", message: "The email field is required." },
+      { name: "phoneNumber", message: "The Phone number field is required." },
+      { name: "dateOfBirth", message: "The date of birth field is required." },
     ];
 
     for (const field of requiredFields) {
@@ -69,27 +69,63 @@ describe("createUserValidation", () => {
   test("Validation works correctly for invalid fields", async () => {
     const invalidFields = [
       {
+        name: "name",
+        value: 1234,
+        message: "The name field must be a string.",
+      },
+      {
+        name: "name",
+        value: "w",
+        message: "The name filed must be between 5 and 50 characters.",
+      },
+      {
+        name: "name",
+        value:
+          "sdfdfsdfgdfgdfgdfgdfgdfgdfgdftwevrrthdyjbfxdvscavrtghyfcdfgtyhnbgvcxsadetryujhnbvcxsadertyjuhmnbv cxsdegtf",
+        message: "The name filed must be between 5 and 50 characters.",
+      },
+      {
+        name: "lastName",
+        value: 1234,
+        message: "The Last Name field must be a string.",
+      },
+      {
+        name: "lastName",
+        value: "w",
+        message: "The Last Name filed must be between 5 and 50 characters.",
+      },
+      {
+        name: "lastName",
+        value:
+          "sdfdfsdfgdfgdfgdfgdfgdfgdfgdftwevrrthdyjbfxdvscavrtghyfcdfgtyhnbgvcxsadetryujhnbvcxsadertyjuhmnbv cxsdegtf",
+        message: "The Last Name filed must be between 5 and 50 characters.",
+      },
+      {
         name: "password",
         value: "short",
-        message: "Password must be at least 8 characters long",
+        message: "Password must be at least 8 characters long.",
       },
-      { name: "email", value: "invalidemail", message: "Invalid email" },
-      { name: "avatar", value: "invalidavatar", message: "Invalid avatar URL" },
+      { name: "email", value: "invalidemail", message: "Invalid email." },
+      {
+        name: "avatar",
+        value: "invalidavatar",
+        message: "Invalid avatar URL.",
+      },
       {
         name: "dateOfBirth",
         value: "invaliddate",
-        message: "Invalid date format",
+        message: "Invalid date format.",
       },
-      { name: "role", value: "invalidrole", message: "Invalid role" },
+      { name: "role", value: "invalidrole", message: "Invalid role." },
       {
         name: "subscribed.newsletter",
         value: "invalidnewsletter",
-        message: "Newsletter subscription must be a boolean value",
+        message: "Newsletter subscription must be a boolean value.",
       },
       {
         name: "subscribed.notifications",
         value: "invalidnotifications",
-        message: "Notifications subscription must be a boolean value",
+        message: "Notifications subscription must be a boolean value.",
       },
     ];
 
@@ -127,11 +163,11 @@ describe("createUserValidation", () => {
 describe("updateUserValidation", () => {
   test("Empty string for optional fields returns error", async () => {
     const requiredFields = [
-      { name: "name", message: "Name is required" },
-      { name: "lastName", message: "Last Name is required" },
-      { name: "email", message: "Email is required" },
-      { name: "phoneNumber", message: "Phone number is required" },
-      { name: "dateOfBirth", message: "Date of birth is required" },
+      { name: "name", message: "The name field is required." },
+      { name: "lastName", message: "The Last Name field is required." },
+      { name: "email", message: "The email field is required." },
+      { name: "phoneNumber", message: "The phone number field is required." },
+      { name: "dateOfBirth", message: "The date of birth field is required." },
     ];
 
     for (const field of requiredFields) {
@@ -148,27 +184,63 @@ describe("updateUserValidation", () => {
   test("Validation works correctly for invalid fields", async () => {
     const invalidFields = [
       {
+        name: "name",
+        value: 1234,
+        message: "The name field must be a string.",
+      },
+      {
+        name: "name",
+        value: "w",
+        message: "The name filed must be between 5 and 50 characters.",
+      },
+      {
+        name: "name",
+        value:
+          "sdfdfsdfgdfgdfgdfgdfgdfgdfgdftwevrrthdyjbfxdvscavrtghyfcdfgtyhnbgvcxsadetryujhnbvcxsadertyjuhmnbv cxsdegtf",
+        message: "The name filed must be between 5 and 50 characters.",
+      },
+      {
+        name: "lastName",
+        value: 1234,
+        message: "The Last Name field must be a string.",
+      },
+      {
+        name: "lastName",
+        value: "w",
+        message: "The Last Name filed must be between 5 and 50 characters.",
+      },
+      {
+        name: "lastName",
+        value:
+          "sdfdfsdfgdfgdfgdfgdfgdfgdfgdftwevrrthdyjbfxdvscavrtghyfcdfgtyhnbgvcxsadetryujhnbvcxsadertyjuhmnbv cxsdegtf",
+        message: "The Last Name filed must be between 5 and 50 characters.",
+      },
+      {
         name: "password",
         value: "short",
-        message: "Password must be at least 8 characters long",
+        message: "Password must be at least 8 characters long.",
       },
-      { name: "email", value: "invalidemail", message: "Invalid email" },
-      { name: "avatar", value: "invalidavatar", message: "Invalid avatar URL" },
+      { name: "email", value: "invalidemail", message: "Invalid email." },
+      {
+        name: "avatar",
+        value: "invalidavatar",
+        message: "Invalid avatar URL.",
+      },
       {
         name: "dateOfBirth",
         value: "invaliddate",
-        message: "Invalid date format",
+        message: "Invalid date format.",
       },
-      { name: "role", value: "invalidrole", message: "Invalid role" },
+      { name: "role", value: "invalidrole", message: "Invalid role." },
       {
         name: "subscribed.newsletter",
         value: "invalidnewsletter",
-        message: "Newsletter subscription must be a boolean value",
+        message: "Newsletter subscription must be a boolean value.",
       },
       {
         name: "subscribed.notifications",
         value: "invalidnotifications",
-        message: "Notifications subscription must be a boolean value",
+        message: "Notifications subscription must be a boolean value.",
       },
     ];
 

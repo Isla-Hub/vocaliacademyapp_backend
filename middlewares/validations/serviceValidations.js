@@ -4,8 +4,10 @@ const createServiceValidation = [
   body("name")
     .notEmpty()
     .withMessage("Name is required.")
-    .isLength({ max: 50 })
-    .withMessage("Name must be at most 50 characters long."),
+    .isString()
+    .withMessage("The name field must be a string.")
+    .isLength({ min: 5, max: 50 })
+    .withMessage("The name filed must be between 5 and 50 characters."),
   body("createdBy")
     .notEmpty()
     .withMessage("CreatedBy is required.")
@@ -43,8 +45,10 @@ const updateServiceValidation = [
     .optional()
     .notEmpty()
     .withMessage("Name cannot be empty.")
-    .isLength({ max: 50 })
-    .withMessage("Name must be at most 50 characters long."),
+    .isString()
+    .withMessage("The name field must be a string.")
+    .isLength({ min: 5, max: 50 })
+    .withMessage("The name filed must be between 5 and 50 characters."),
   body("createdBy")
     .optional()
     .notEmpty()
