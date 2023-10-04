@@ -192,7 +192,9 @@ describe("updateCommentValidation", () => {
       .send({ content: 123456 })
       .expect(400);
 
-    expect(response.body.errors[0].msg).toContain("Content should be a string");
+    expect(response.body.errors[0].msg).toContain(
+      "The content field should be a string"
+    );
 
     const response2 = await agent
       .put(`/api/v1/bookings/${booking._id}/comments/fakeCommentId`)
