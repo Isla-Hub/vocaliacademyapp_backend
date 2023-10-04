@@ -101,8 +101,8 @@ afterAll(async () => {
 describe("createCommentValidation", () => {
   test("Empty required fields returns error", async () => {
     const requiredFields = [
-      { name: "by", message: "The field by is required" },
-      { name: "content", message: "The field content is required" },
+      { name: "by", message: "The by field is required" },
+      { name: "content", message: "The content field is required" },
     ];
 
     for (const field of requiredFields) {
@@ -126,12 +126,12 @@ describe("createCommentValidation", () => {
       {
         name: "by",
         value: "Test User",
-        message: "By field should be a valid MongoDB ID",
+        message: "The by field should be a valid MongoDB ID",
       },
       {
         name: "content",
         value: 123123,
-        message: "Content field should be a string",
+        message: "The content field should be a string",
       },
     ];
 
@@ -182,7 +182,9 @@ describe("updateCommentValidation", () => {
       .send({ conent: "" })
       .expect(400);
 
-    expect(response.body.errors[0].msg).toContain("Content is required");
+    expect(response.body.errors[0].msg).toContain(
+      "The content field is required"
+    );
   });
   test("Validation works correctly for invalid event fields", async () => {
     const response = await agent
@@ -198,16 +200,16 @@ describe("updateCommentValidation", () => {
       .expect(400);
 
     expect(response2.body.errors[0].msg).toContain(
-      "Comment ID should be a valid MongoDB ID"
+      "The commentId param should be a valid MongoDB ID"
     );
   });
   test("Validation works correctly for valid fields", async () => {
     const response = await agent
       .put(`/api/v1/bookings/${booking._id}/comments/${comment._id}`)
-      .send({ content: "Correct conent" })
+      .send({ content: "Correct content" })
       .expect(200);
 
-    expect(response.body.content).toBe("Correct conent");
+    expect(response.body.content).toBe("Correct content");
     expect(response.body._id).toBeTruthy();
     expect(response.body.by).toBe(agent.userId);
   });

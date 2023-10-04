@@ -49,49 +49,49 @@ router
 router
   .route("/:id")
   .get(
-    param("id").notEmpty().withMessage("Booking ID is required"),
-    handleValidationErrors,
     canPerformAction([
       rolesAction.admin,
       rolesAction.instructor,
       rolesAction.student,
     ]),
+    param("id").notEmpty().withMessage("Booking ID is required"),
+    handleValidationErrors,
     getBookingById,
     (req, res) => {
       res.status(200).json(req.booking);
     }
   )
   .put(
+    canPerformAction([rolesAction.admin, rolesAction.instructor]),
     updateBookingValidation,
     handleValidationErrors,
-    canPerformAction([rolesAction.admin, rolesAction.instructor]),
     updateBooking
   )
   .delete(
+    canPerformAction([rolesAction.admin, rolesAction.instructor]),
     param("id").notEmpty().withMessage("Booking ID is required"),
     handleValidationErrors,
-    canPerformAction([rolesAction.admin, rolesAction.instructor]),
     deleteBooking
   );
 
 router
   .route("/:id/comments")
   .post(
-    param("id").notEmpty().withMessage("Booking ID is required"),
-    createCommentValidation,
-    handleValidationErrors,
     canPerformAction([
       rolesAction.admin,
       rolesAction.instructor,
       rolesAction.student,
     ]),
+    param("id").notEmpty().withMessage("Booking ID is required"),
+    createCommentValidation,
+    handleValidationErrors,
     getBookingById,
     createComment
   )
   .delete(
+    canPerformAction([rolesAction.admin]),
     param("id").notEmpty().withMessage("Booking ID is required"),
     handleValidationErrors,
-    canPerformAction([rolesAction.admin]),
     getBookingById,
     deleteComment
   );
@@ -99,23 +99,23 @@ router
 router
   .route("/:id/comments/:commentId")
   .put(
-    param("id").notEmpty().withMessage("Booking ID is required"),
-    param("commentId").notEmpty().withMessage("Comment ID is required"),
-    updateCommentValidation,
-    handleValidationErrors,
     canPerformAction([
       rolesAction.admin,
       rolesAction.instructor,
       rolesAction.student,
     ]),
+    param("id").notEmpty().withMessage("Booking ID is required"),
+    param("commentId").notEmpty().withMessage("Comment ID is required"),
+    updateCommentValidation,
+    handleValidationErrors,
     getBookingById,
     updateComment
   )
   .delete(
+    canPerformAction([rolesAction.admin]),
     param("id").notEmpty().withMessage("Booking ID is required"),
     param("commentId").notEmpty().withMessage("Comment ID is required"),
     handleValidationErrors,
-    canPerformAction([rolesAction.admin]),
     getBookingById,
     deleteComment
   );
