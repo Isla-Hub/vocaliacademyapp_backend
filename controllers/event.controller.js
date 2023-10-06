@@ -2,7 +2,7 @@ import Event from "../mongodb/models/event.js";
 
 const checkEventNameExists = async (eventName) => {
   const existingEvent = await Event.findOne({ name: eventName });
-  return !!existingEvent;
+  return existingEvent !== null; 
 };
 
 const getAllEvents = async (req, res) => {
@@ -72,4 +72,5 @@ const deleteEvent = async (req, res) => {
 };
 
 export { getAllEvents, getEventById, createEvent, updateEvent, deleteEvent };
+
 
