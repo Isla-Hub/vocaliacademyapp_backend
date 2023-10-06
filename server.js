@@ -10,6 +10,10 @@ import authRouter from "./routes/auth.routes.js";
 import cors from "cors";
 import morgan from "morgan";
 import { authenticateToken } from "./middlewares/jwt.js";
+import {
+  generalLimiter,
+  authLimiter,
+} from "./middlewares/rateLimit.js";
 
 function createServer() {
   const app = express();
@@ -19,14 +23,15 @@ function createServer() {
   app.use(morgan("dev"));
 
   app.use(/^(?!.*\/auth).*$/, authenticateToken);
-
+  app.use(/^(?!.*\/auth).*$/, generalLimiter);
+  
   app.use("/api/v1/users", userRouter);
   app.use("/api/v1/services", serviceRouter);
   app.use("/api/v1/events", eventRouter);
   app.use("/api/v1/rooms", roomRouter);
   app.use("/api/v1/bookings", bookingRouter);
   app.use("/api/v1/payments", paymentRouter);
-  app.use("/api/v1/auth", authRouter);
+  app.use("/api/v1/auth", authLimiter, authRouter);
 
   return app;
 }

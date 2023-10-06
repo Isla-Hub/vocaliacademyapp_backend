@@ -106,7 +106,6 @@ afterAll(async () => {
 
 describe("POST /api/v1/bookings", () => {
   it("should create a new booking", async () => {
-    console.log("******", newBooking);
     const response = await agent
       .post("/api/v1/bookings")
       .send(newBooking)

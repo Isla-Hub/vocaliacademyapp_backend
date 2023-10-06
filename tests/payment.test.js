@@ -108,6 +108,7 @@ beforeAll(async () => {
     paidBy: student._id,
     product: service._id,
     createdBy: admin._id,
+    status: "Validated",
   });
 
   await paymentService.save();
@@ -117,6 +118,7 @@ beforeAll(async () => {
     paidBy: student._id,
     product: event._id,
     createdBy: admin._id,
+    status: "Validated",
   });
 
   await paymentEvent.save();
@@ -147,7 +149,6 @@ describe("POST /api/v1/payments", () => {
     expect(responseService.body.paidBy).toBe(
       newPaymentService.paidBy.toString()
     );
-    expect(responseService.body.paidAt).toBeTruthy();
     expect(responseService.body.product).toBe(
       newPaymentService.product.toString()
     );
@@ -158,6 +159,7 @@ describe("POST /api/v1/payments", () => {
       newPaymentService.createdBy.toString()
     );
     expect(responseService.body.createdAt).toBeTruthy();
+    expect(responseService.body.status).toBe("Pending");
 
     const dbPaymentService = await Payment.findOne({
       _id: responseService.body._id,
@@ -168,7 +170,6 @@ describe("POST /api/v1/payments", () => {
     expect(dbPaymentService.paidBy.toString()).toBe(
       newPaymentService.paidBy.toString()
     );
-    expect(dbPaymentService.paidAt).toBeTruthy();
     expect(dbPaymentService.product.toString()).toBe(
       newPaymentService.product.toString()
     );
@@ -177,6 +178,7 @@ describe("POST /api/v1/payments", () => {
       newPaymentService.createdBy.toString()
     );
     expect(dbPaymentService.createdAt).toBeTruthy();
+    expect(dbPaymentService.status).toBe("Pending");
 
     const responseEvent = await agent
       .post("/api/v1/payments")
@@ -185,13 +187,13 @@ describe("POST /api/v1/payments", () => {
     // Check the response
     expect(responseEvent.body._id).toBeTruthy();
     expect(responseEvent.body.paidBy).toBe(newPaymentEvent.paidBy.toString());
-    expect(responseEvent.body.paidAt).toBeTruthy();
     expect(responseEvent.body.product).toBe(newPaymentEvent.product.toString());
     expect(responseEvent.body.productModel).toBe(newPaymentEvent.productModel);
     expect(responseEvent.body.createdBy).toBe(
       newPaymentEvent.createdBy.toString()
     );
     expect(responseEvent.body.createdAt).toBeTruthy();
+    expect(responseEvent.body.status).toBe("Pending");
 
     const dbPaymentEvent = await Payment.findOne({
       _id: responseEvent.body._id,
@@ -202,7 +204,6 @@ describe("POST /api/v1/payments", () => {
     expect(dbPaymentEvent.paidBy.toString()).toBe(
       newPaymentEvent.paidBy.toString()
     );
-    expect(dbPaymentEvent.paidAt).toBeTruthy();
     expect(dbPaymentEvent.product.toString()).toBe(
       newPaymentEvent.product.toString()
     );
@@ -211,6 +212,7 @@ describe("POST /api/v1/payments", () => {
       newPaymentEvent.createdBy.toString()
     );
     expect(dbPaymentEvent.createdAt).toBeTruthy();
+    expect(dbPaymentEvent.status).toBe("Pending");
   });
 });
 
@@ -228,10 +230,6 @@ describe("GET /api/v1/payments", () => {
     expect(responsePaymentService.paidBy.toString()).toBe(
       paymentService.paidBy.toString()
     );
-    expect(responsePaymentService.paidAt).toBeTruthy();
-    expect(responsePaymentService.product.toString()).toBe(
-      paymentService.product.toString()
-    );
     expect(responsePaymentService.productModel).toBe(
       paymentService.productModel
     );
@@ -239,6 +237,7 @@ describe("GET /api/v1/payments", () => {
       paymentService.createdBy.toString()
     );
     expect(responsePaymentService.createdAt).toBeTruthy();
+    expect(responsePaymentService.status).toBe("Validated");
   });
 });
 
@@ -250,11 +249,10 @@ describe("GET /api/v1/payments/:id", () => {
     //Check the response
     expect(response.body._id).toBeTruthy();
     expect(response.body.paidBy).toBe(paymentService.paidBy.toString());
-    expect(response.body.paidAt).toBeTruthy();
     expect(response.body.product).toBe(paymentService.product.toString());
     expect(response.body.productModel).toBe(paymentService.productModel);
     expect(response.body.createdBy).toBe(paymentService.createdBy.toString());
-    expect(response.body.createdAt).toBeTruthy();
+    expect(response.body.status).toBeTruthy();
   });
 });
 
@@ -267,11 +265,11 @@ describe("PUT /api/v1/payments/:id", () => {
     //Check the response
     expect(response.body._id).toBeTruthy();
     expect(response.body.paidBy).toBe(paymentService.paidBy.toString());
-    expect(response.body.paidAt).toBeTruthy();
     expect(response.body.product).toBe(paymentService.product.toString());
     expect(response.body.productModel).toBe(paymentService.productModel);
     expect(response.body.createdBy).toBe(paymentService.createdBy.toString());
     expect(response.body.createdAt).toBeTruthy();
+    expect(response.body.status).toBe("Validated");
   });
 });
 

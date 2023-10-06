@@ -122,6 +122,12 @@ describe("createPaymentValidation", () => {
         value: "Carlos Estela",
         message: "The createdBy field must be a valid MongoDB ObjectId.",
       },
+      {
+        name: "status",
+        value: 88,
+        message:
+          'The status field must be "Pending", "Validated" or "Incorrect".',
+      },
     ];
 
     for (const field of invalidFields) {
@@ -142,6 +148,7 @@ describe("createPaymentValidation", () => {
       product: service._id,
       productModel: "Service",
       createdBy: student._id,
+      status: "Validated",
     };
 
     const validFields = [
@@ -149,6 +156,7 @@ describe("createPaymentValidation", () => {
       { name: "product", value: correctFields.product },
       { name: "productModel", value: correctFields.productModel },
       { name: "createdBy", value: correctFields.createdBy },
+      { name: "status", value: correctFields.status },
     ];
 
     const response = await agent
@@ -174,6 +182,7 @@ describe("updatePaymentValidation", () => {
       },
       { name: "createdBy", message: "The createdBy field cannot be empty." },
       { name: "createdAt", message: "The createdAt field cannot be empty." },
+      { name: "status", message: "The status field cannot be empty." },
     ];
 
     for (const field of requiredFields) {
@@ -221,6 +230,12 @@ describe("updatePaymentValidation", () => {
         value: "20/05/2003",
         message: "The createdAt field must be a valid ISO8601 date.",
       },
+      {
+        name: "status",
+        value: "Update",
+        message:
+          'The status field must be "Pending", "Validated" or "Incorrect".',
+      },
     ];
 
     const requestPayment = {
@@ -231,6 +246,7 @@ describe("updatePaymentValidation", () => {
       productModel: "Service",
       createdBy: student._id,
       createdAt: "2023-07-23T14:00:00Z",
+      status: "Validated",
     };
 
     for (const field of invalidFields) {
@@ -254,6 +270,7 @@ describe("updatePaymentValidation", () => {
       { name: "productModel", value: "Service" },
       { name: "createdBy", value: student._id },
       { name: "createdAt", value: "2023-07-23T14:00:00.000Z" },
+      { name: "status", value: "Validated" },
     ];
     let requestBody = {};
 
