@@ -143,6 +143,14 @@ describe("POST /api/v1/events", () => {
     );
     expect(dbEvent.externalAtendants).toBeInstanceOf(Array);
   });
+  it("should return an error when trying to create an event with an existing name", async () => {
+    const responseExistingName = await agent
+      .post("/api/v1/events")
+      .send({ ...newEvent, name: event.name })
+      .expect(409);
+
+    expect(responseExistingName.body.message).toBe("The event name already exists.");
+  });
 });
 
 describe("GET /api/v1/events", () => {
@@ -229,6 +237,14 @@ describe("PUT /api/v1/events/:id", () => {
     expect(response.body.externalAtendants[0].lastName).toBe("Lolita LastName");
     expect(response.body.externalAtendants[0].email).toBe("lolita@me.com");
     expect(response.body.externalAtendants[0].phoneNumber).toBe("123123123");
+  });
+  it("should return an error when trying to update an event with an existing name", async () => {
+    const responseExistingName = await agent
+      .put(`/api/v1/events/${event._id}`)
+      .send({ ...newEvent, name: "TestEvent" })
+      .expect(409);
+
+    expect(responseExistingName.body.message).toBe("The event name already exists.");
   });
 });
 
