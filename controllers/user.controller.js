@@ -3,10 +3,11 @@ import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 import {v2 as cloudinary} from 'cloudinary';
           
-cloudinary.config({ 
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+cloudinary.config({
+  cloud_name: "dgtuznrav",
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true,
 });
 
 const getAllUsers = async (req, res) => {
@@ -108,7 +109,7 @@ const deleteUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-   if (user.avatar) {
+  if (user.avatar) {
     const avatarUrlParts = user.avatar.split('/');
     const publicId = avatarUrlParts[avatarUrlParts.length - 1].split('.')[0];
 
