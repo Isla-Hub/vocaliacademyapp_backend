@@ -49,7 +49,6 @@ const createUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const user = await User.create({ ...req.body, password: hashedPassword });
 
-    // Verificar si se está cargando una imagen de avatar y guardarla en Cloudinary
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path);
       user.avatar = result.secure_url;
@@ -85,14 +84,10 @@ const updateUser = async (req, res) => {
       });
     }
 
-    // Verificar si se está cargando una nueva imagen de avatar y actualizarla en Cloudinary
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path);
       paramUser.avatar = result.secure_url;
     }
-
-    // Actualizar otros campos del usuario según sea necesario
-    // ...
 
     await paramUser.save();
 
@@ -113,13 +108,11 @@ const deleteUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-
-   // Verificar si el usuario tiene un avatar y extraer el ID público de la URL del avatar
    if (user.avatar) {
-    const avatarUrlParts = user.avatar.split('/'); // Dividir la URL en partes
-    const publicId = avatarUrlParts[avatarUrlParts.length - 1].split('.')[0]; // Extraer el último segmento y eliminar la extensión
-    // Ahora 'publicId' contiene el ID público de la imagen en Cloudinary
-    await cloudinary.uploader.destroy(publicId); // Eliminar la imagen de Cloudinary
+    const avatarUrlParts = user.avatar.split('/');
+    const publicId = avatarUrlParts[avatarUrlParts.length - 1].split('.')[0];
+
+    await cloudinary.uploader.destroy(publicId);
   }
 
     const userDeleted = await User.findByIdAndDelete(req.params.id);
