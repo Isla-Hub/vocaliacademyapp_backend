@@ -23,7 +23,7 @@ function createServer() {
   app.use(morgan("dev"));
 
   app.use(/^(?!.*\/auth).*$/, authenticateToken);
-  app.use(generalLimiter);
+  app.use(/^(?!.*\/auth).*$/, generalLimiter);
   
   app.use("/api/v1/users", userRouter);
   app.use("/api/v1/services", serviceRouter);

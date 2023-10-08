@@ -9,10 +9,12 @@ const getAllBookings = async (req, res) => {
   }
 };
 
-const getBookingById = async (req, res) => {
+const getBookingById = async (req, res, next) => {
+  const bookingId = req.params.id;
   try {
-    const booking = await Booking.findById(req.params.id);
-    res.status(200).json(booking);
+    const booking = await Booking.findById(bookingId);
+    req.booking = booking;
+    next();
   } catch (error) {
     res.status(404).json({ message: error.message });
   }

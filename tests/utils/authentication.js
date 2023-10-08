@@ -8,6 +8,9 @@ async function getAuthenticatedAgent(app) {
 
   agent.set("Authorization", `Bearer ${res.body.token}`);
 
+  if (res.body.userId) {
+    agent.userId = res.body.userId;
+  }
   return agent;
 }
 
@@ -18,6 +21,10 @@ async function getAuthenticatedStudentUser(app) {
     .send({ email: "student@myapp.com", password: "test1234" });
 
   agent.set("Authorization", `Bearer ${res.body.token}`);
+
+  if (res.body.userId) {
+    agent.userId = res.body.userId;
+  }
 
   return agent;
 }

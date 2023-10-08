@@ -42,27 +42,6 @@ const createBookingValidation = [
     .optional()
     .isBoolean()
     .withMessage("The cancelled field must be a boolean value."),
-  body("comments")
-    .optional()
-    .isArray({ min: 1 })
-    .withMessage(
-      "The comments field must be an array with at least one element."
-    ),
-  body("comments.*.by")
-    .notEmpty()
-    .withMessage("The by field is required for each element of comments.")
-    .isString()
-    .withMessage("The by field must be a string."),
-  body("comments.*.date")
-    .optional()
-    .isISO8601()
-    .withMessage("The date field must be a valid ISO8601 date.")
-    .toDate(),
-  body("comments.*.content")
-    .notEmpty()
-    .withMessage("The content field is required for each element of comments.")
-    .isString()
-    .withMessage("The content field must be a string."),
 ];
 
 const updateBookingValidation = [
@@ -122,35 +101,6 @@ const updateBookingValidation = [
     .withMessage("The cancelled field cannot be empty.")
     .isBoolean()
     .withMessage("The cancelled field must be a boolean value."),
-  body("comments")
-    .optional()
-    .notEmpty()
-    .withMessage("The comments field cannot be empty.")
-    .isArray({ min: 1 })
-    .withMessage(
-      "The comments field must be an array with at least one element."
-    ),
-  body("comments.*.by")
-    .optional()
-    .notEmpty()
-    .withMessage("The by field cannot be empty for each element of comments.")
-    .isString()
-    .withMessage("The by field must be a string."),
-  body("comments.*.date")
-    .optional()
-    .notEmpty()
-    .withMessage("The date field cannot be empty for each element of comments.")
-    .isISO8601()
-    .withMessage("The date field must be a valid ISO8601 date.")
-    .toDate(),
-  body("comments.*.content")
-    .optional()
-    .notEmpty()
-    .withMessage(
-      "The content field cannot be empty for each element of comments."
-    )
-    .isString()
-    .withMessage("The content field must be a string."),
 ];
 
 export { createBookingValidation, updateBookingValidation };
