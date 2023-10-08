@@ -70,5 +70,8 @@ describe("GET /api/v1/users", () => {
 
   it("should return a 401 status if the user rol is not allowed", async () => {
     const response = await userWithInvalidRole.get("/api/v1/users").expect(401);
+    expect(response.body.message).toBe(
+      "User has no permission to perform this action."
+    );
   });
 });
