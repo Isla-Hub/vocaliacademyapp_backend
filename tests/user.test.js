@@ -4,6 +4,7 @@ import * as dotenv from "dotenv";
 import { getAuthenticatedAgent } from "./utils/authentication";
 import { clear, close, connect } from "./config/db";
 import mongoose from "mongoose";
+import { v2 as cloudinary } from 'cloudinary';
 
 dotenv.config();
 
@@ -37,6 +38,11 @@ beforeAll(async () => {
     password: "test1234",
   });
   agent = await getAuthenticatedAgent(app);
+  cloudinary.config({ 
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
 });
 
 beforeEach(() => {
@@ -86,7 +92,13 @@ describe("POST /api/v1/users", () => {
     expect(dbUser.subscribed.notifications).toBe(true);
     expect(dbUser.services).toBeInstanceOf(Array);
     expect(dbUser.payments).toBeInstanceOf(Array);
+
+    // Check that the avatar image has been uploaded to Cloudinary
+    const publicId = dbUser.avatar.split('/').pop().split('.')[0];
+    const cloudinaryImage = await cloudinary.uploader.get(publicId);
+    expect(cloudinaryImage).toBeTruthy();
   });
+
   test("Create user returns 409 when trying to include an email that is already registered", async () => {
     const response = await agent
       .post(`/api/v1/users`)
@@ -98,6 +110,7 @@ describe("POST /api/v1/users", () => {
     );
   });
 });
+
 describe("GET /api/v1/users", () => {
   it("should return all users", async () => {
     const response = await agent.get("/api/v1/users").expect(200);
@@ -203,8 +216,48 @@ describe("PUT /api/v1/users/:id", () => {
     expect(response.body.subscribed.notifications).toBe(true);
     expect(response.body.services).toBeInstanceOf(Array);
     expect(response.body.payments).toBeInstanceOf(Array);
+
+    // Check that the avatar image has not changed
+    const dbUser = await User.findOne({ _id: user._id });
+    expect(response.body.avatar).toBe(dbUser.avatar);
   });
-  test("Update user returns 409 when trying to update email with already registered email ", async () => {
+
+  it("should update a user with a new avatar", async () => {
+    // Simula la carga de una nueva imagen de avatar (puedes usar una biblioteca de pruebas de carga de archivos)
+    const newAvatarFilePath = "ruta/a/tu/nueva/imagen/avatar.png";
+
+    const response = await agent
+      .put(`/api/v1/users/${user._id}`)
+      .field("name", "UpdatedName")
+      .field("email", "updated@example.com")
+      .attach("avatar", newAvatarFilePath) // Simula la carga de una nueva imagen de perfil
+      .expect(200);
+
+    // Check the response
+    expect(response.body._id).toBeTruthy();
+    expect(response.body._id).toBe(user._id.toString());
+    expect(response.body.name).toBe("UpdatedName");
+    expect(response.body.lastName).toBe(user.lastName);
+    expect(response.body.email).toBe("updated@example.com");
+    expect(response.body.phoneNumber).toBe(user.phoneNumber);
+    expect(response.body.dateOfBirth).toBe(user.dateOfBirth.toISOString());
+    expect(response.body.role).toBe(user.role);
+    expect(response.body.subscribed.newsletter).toBe(true);
+    expect(response.body.subscribed.notifications).toBe(true);
+    expect(response.body.services).toBeInstanceOf(Array);
+    expect(response.body.payments).toBeInstanceOf(Array);
+
+    // Check that the avatar image has been updated and is different from the previous avatar
+    const dbUser = await User.findOne({ _id: user._id });
+    expect(response.body.avatar).not.toBe(dbUser.avatar);
+
+    // Check that the new avatar image has been uploaded to Cloudinary
+    const publicId = response.body.avatar.split('/').pop().split('.')[0];
+    const cloudinaryImage = await cloudinary.uploader.get(publicId);
+    expect(cloudinaryImage).toBeTruthy();
+  });
+
+  test("Update user returns 409 when trying to update email with already registered email", async () => {
     const response = await agent
       .put(`/api/v1/users/${user._id}`)
       .send({ ...newUser, email: "admin@myapp.com" })
@@ -214,6 +267,7 @@ describe("PUT /api/v1/users/:id", () => {
       "Another user is using the provided email address"
     );
   });
+
   it("should return a 400 status and error message when given an invalid user ID", async () => {
     const response = await agent
       .put("/api/v1/users/invalid")
@@ -222,6 +276,7 @@ describe("PUT /api/v1/users/:id", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({ message: "Invalid user ID" });
   });
+
   it("should return a 404 status and error message when user is not found", async () => {
     const userId = new mongoose.Types.ObjectId();
 
@@ -247,8 +302,18 @@ describe("PUT /api/v1/users/:id", () => {
   });
 });
 
+
 describe("DELETE /api/v1/users/:id", () => {
   it("should delete a user", async () => {
+    // Verificar si el usuario tiene un avatar y extraer el ID público de la URL del avatar
+    if (user.avatar) {
+      const avatarUrlParts = user.avatar.split('/'); // Dividir la URL en partes
+      const publicId = avatarUrlParts[avatarUrlParts.length - 1].split('.')[0]; // Extraer el último segmento y eliminar la extensión
+      // Ahora 'publicId' contiene el ID público de la imagen en Cloudinary
+      const cloudinaryImage = await cloudinary.uploader.get(publicId);
+      expect(cloudinaryImage).toBeTruthy();
+    }
+
     const response = await agent
       .delete(`/api/v1/users/${user._id}`)
       .expect(200);
@@ -266,6 +331,7 @@ describe("DELETE /api/v1/users/:id", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({ message: "Invalid user ID" });
   });
+
   it("should return a 404 status and error message when user is not found", async () => {
     const userId = new mongoose.Types.ObjectId();
 
@@ -288,3 +354,4 @@ describe("DELETE /api/v1/users/:id", () => {
     expect(response.body).toEqual({ message: "Database error" });
   });
 });
+
