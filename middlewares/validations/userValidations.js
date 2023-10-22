@@ -7,14 +7,14 @@ const createUserValidation = [
     .isString()
     .withMessage("The name field must be a string.")
     .isLength({ min: 5, max: 50 })
-    .withMessage("The name filed must be between 5 and 50 characters."),
+    .withMessage("The name field must be between 5 and 50 characters."),
   body("lastName")
     .notEmpty()
     .withMessage("The Last Name field is required.")
     .isString()
     .withMessage("The Last Name field must be a string.")
     .isLength({ min: 5, max: 50 })
-    .withMessage("The Last Name filed must be between 5 and 50 characters."),
+    .withMessage("The Last Name field must be between 5 and 50 characters."),
   body("email")
     .notEmpty()
     .withMessage("The email field is required.")
@@ -56,7 +56,7 @@ const updateUserValidation = [
     .isString()
     .withMessage("The name field must be a string.")
     .isLength({ min: 5, max: 50 })
-    .withMessage("The name filed must be between 5 and 50 characters."),
+    .withMessage("The name field must be between 5 and 50 characters."),
   body("lastName")
     .optional()
     .notEmpty()
@@ -64,7 +64,7 @@ const updateUserValidation = [
     .isString()
     .withMessage("The Last Name field must be a string.")
     .isLength({ min: 5, max: 50 })
-    .withMessage("The Last Name filed must be between 5 and 50 characters."),
+    .withMessage("The Last Name field must be between 5 and 50 characters."),
   body("email")
     .optional()
     .notEmpty()

@@ -7,7 +7,7 @@ const createServiceValidation = [
     .isString()
     .withMessage("The name field must be a string.")
     .isLength({ min: 5, max: 50 })
-    .withMessage("The name filed must be between 5 and 50 characters."),
+    .withMessage("The name field must be between 5 and 50 characters."),
   body("createdBy")
     .notEmpty()
     .withMessage("CreatedBy is required.")
@@ -48,7 +48,7 @@ const updateServiceValidation = [
     .isString()
     .withMessage("The name field must be a string.")
     .isLength({ min: 5, max: 50 })
-    .withMessage("The name filed must be between 5 and 50 characters."),
+    .withMessage("The name field must be between 5 and 50 characters."),
   body("createdBy")
     .optional()
     .notEmpty()

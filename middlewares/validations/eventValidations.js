@@ -17,7 +17,7 @@ const createEventValidation = [
     .isString()
     .withMessage("The name field must be a string.")
     .isLength({ min: 5, max: 50 })
-    .withMessage("The name filed must be between 5 and 50 characters."),
+    .withMessage("The name field must be between 5 and 50 characters."),
   body("date")
     .notEmpty()
     .withMessage("The date field is required.")
@@ -144,7 +144,7 @@ const updateEventValidation = [
     .isString()
     .withMessage("The name field must be a string.")
     .isLength({ min: 5, max: 50 })
-    .withMessage("The name filed must be between 5 and 50 characters."),
+    .withMessage("The name field must be between 5 and 50 characters."),
   body("date")
     .optional()
     .notEmpty()

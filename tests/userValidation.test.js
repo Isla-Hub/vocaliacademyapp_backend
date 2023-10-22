@@ -75,14 +75,13 @@ describe("createUserValidation", () => {
       },
       {
         name: "name",
-        value: "w",
-        message: "The name filed must be between 5 and 50 characters.",
+        value: "1234",
+        message: "The name field must be between 5 and 50 characters.",
       },
       {
         name: "name",
-        value:
-          "sdfdfsdfgdfgdfgdfgdfgdfgdfgdftwevrrthdyjbfxdvscavrtghyfcdfgtyhnbgvcxsadetryujhnbvcxsadertyjuhmnbv cxsdegtf",
-        message: "The name filed must be between 5 and 50 characters.",
+        value: "The name field must be between 5 and 50 characters.",
+        message: "The name field must be between 5 and 50 characters.",
       },
       {
         name: "lastName",
@@ -92,13 +91,13 @@ describe("createUserValidation", () => {
       {
         name: "lastName",
         value: "w",
-        message: "The Last Name filed must be between 5 and 50 characters.",
+        message: "The Last Name field must be between 5 and 50 characters.",
       },
       {
         name: "lastName",
         value:
           "sdfdfsdfgdfgdfgdfgdfgdfgdfgdftwevrrthdyjbfxdvscavrtghyfcdfgtyhnbgvcxsadetryujhnbvcxsadertyjuhmnbv cxsdegtf",
-        message: "The Last Name filed must be between 5 and 50 characters.",
+        message: "The Last Name field must be between 5 and 50 characters.",
       },
       {
         name: "password",
@@ -190,14 +189,13 @@ describe("updateUserValidation", () => {
       },
       {
         name: "name",
-        value: "w",
-        message: "The name filed must be between 5 and 50 characters.",
+        value: "1234",
+        message: "The name field must be between 5 and 50 characters.",
       },
       {
         name: "name",
-        value:
-          "sdfdfsdfgdfgdfgdfgdfgdfgdfgdftwevrrthdyjbfxdvscavrtghyfcdfgtyhnbgvcxsadetryujhnbvcxsadertyjuhmnbv cxsdegtf",
-        message: "The name filed must be between 5 and 50 characters.",
+        value: "The name field must be between 5 and 50 characters.",
+        message: "The name field must be between 5 and 50 characters.",
       },
       {
         name: "lastName",
@@ -207,13 +205,13 @@ describe("updateUserValidation", () => {
       {
         name: "lastName",
         value: "w",
-        message: "The Last Name filed must be between 5 and 50 characters.",
+        message: "The Last Name field must be between 5 and 50 characters.",
       },
       {
         name: "lastName",
         value:
           "sdfdfsdfgdfgdfgdfgdfgdfgdfgdftwevrrthdyjbfxdvscavrtghyfcdfgtyhnbgvcxsadetryujhnbvcxsadertyjuhmnbv cxsdegtf",
-        message: "The Last Name filed must be between 5 and 50 characters.",
+        message: "The Last Name field must be between 5 and 50 characters.",
       },
       {
         name: "password",

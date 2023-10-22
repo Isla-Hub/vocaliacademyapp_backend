@@ -261,19 +261,18 @@ describe("createEventValidation", () => {
       },
       {
         name: "name",
-        value: "w",
-        message: "The name filed must be between 5 and 50 characters.",
+        value: 1234,
+        message: "The name field must be a string.",
       },
       {
         name: "name",
-        value:
-          "sdfdfsdfgdfgdfgdfgdfgdfgdfgdftwevrrthdyjbfxdvscavrtghyfcdfgtyhnbgvcxsadetryujhnbvcxsadertyjuhmnbv cxsdegtf",
-        message: "The name filed must be between 5 and 50 characters.",
+        value: "1234",
+        message: "The name field must be between 5 and 50 characters.",
       },
       {
         name: "name",
-        value: 5,
-        message: "The name filed must be between 5 and 50 characters.",
+        value: "The name field must be between 5 and 50 characters.",
+        message: "The name field must be between 5 and 50 characters.",
       },
     ];
 
@@ -459,19 +458,18 @@ describe("updateEventValidation", () => {
       },
       {
         name: "name",
-        value: 12345,
+        value: 1234,
         message: "The name field must be a string.",
       },
       {
         name: "name",
-        value: "w",
-        message: "The name filed must be between 5 and 50 characters.",
+        value: "1234",
+        message: "The name field must be between 5 and 50 characters.",
       },
       {
         name: "name",
-        value:
-          "sdfdfsdfgdfgdfgdfgdfgdfgdfgdftwevrrthdyjbfxdvscavrtghyfcdfgtyhnbgvcxsadetryujhnbvcxsadertyjuhmnbv cxsdegtf",
-        message: "The name filed must be between 5 and 50 characters.",
+        value: "The name field must be between 5 and 50 characters.",
+        message: "The name field must be between 5 and 50 characters.",
       },
       {
         name: "date",

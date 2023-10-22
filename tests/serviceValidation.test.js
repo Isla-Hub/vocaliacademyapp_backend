@@ -107,14 +107,13 @@ describe("createServiceValidation", () => {
       },
       {
         name: "name",
-        value: "w",
-        message: "The name filed must be between 5 and 50 characters.",
+        value: "1234",
+        message: "The name field must be between 5 and 50 characters.",
       },
       {
         name: "name",
-        value:
-          "sdfdfsdfgdfgdfgdfgdfgdfgdfgdftwevrrthdyjbfxdvscavrtghyfcdfgtyhnbgvcxsadetryujhnbvcxsadertyjuhmnbv cxsdegtf",
-        message: "The name filed must be between 5 and 50 characters.",
+        value: "The name field must be between 5 and 50 characters.",
+        message: "The name field must be between 5 and 50 characters.",
       },
       {
         name: "createdBy",
@@ -218,14 +217,13 @@ describe("updateServiceValidation", () => {
       },
       {
         name: "name",
-        value: "w",
-        message: "The name filed must be between 5 and 50 characters.",
+        value: "1234",
+        message: "The name field must be between 5 and 50 characters.",
       },
       {
         name: "name",
-        value:
-          "sdfdfsdfgdfgdfgdfgdfgdfgdfgdftwevrrthdyjbfxdvscavrtghyfcdfgtyhnbgvcxsadetryujhnbvcxsadertyjuhmnbv cxsdegtf",
-        message: "The name filed must be between 5 and 50 characters.",
+        value: "The name field must be between 5 and 50 characters.",
+        message: "The name field must be between 5 and 50 characters.",
       },
       {
         name: "createdBy",
