@@ -78,6 +78,21 @@ describe("createRoomValidation", () => {
         message: "The name field must be a string.",
       },
       {
+        name: "name",
+        value: 1234,
+        message: "The name field must be a string.",
+      },
+      {
+        name: "name",
+        value: "1234",
+        message: "The name field must be between 5 and 50 characters.",
+      },
+      {
+        name: "name",
+        value: "The name field must be between 5 and 50 characters.",
+        message: "The name field must be between 5 and 50 characters.",
+      },
+      {
         name: "createdBy",
         value: "1234",
         message: "The createdBy field must be a valid MongoDB ObjectId.",
@@ -155,6 +170,16 @@ describe("updateRoomValidation", () => {
         name: "name",
         value: 1234,
         message: "The name field must be a string.",
+      },
+      {
+        name: "name",
+        value: "1234",
+        message: "The name field must be between 5 and 50 characters.",
+      },
+      {
+        name: "name",
+        value: "The name field must be between 5 and 50 characters.",
+        message: "The name field must be between 5 and 50 characters.",
       },
       {
         name: "createdBy",

@@ -259,6 +259,21 @@ describe("createEventValidation", () => {
         ],
         message: "The phoneNumber field must be a string.",
       },
+      {
+        name: "name",
+        value: 1234,
+        message: "The name field must be a string.",
+      },
+      {
+        name: "name",
+        value: "1234",
+        message: "The name field must be between 5 and 50 characters.",
+      },
+      {
+        name: "name",
+        value: "The name field must be between 5 and 50 characters.",
+        message: "The name field must be between 5 and 50 characters.",
+      },
     ];
 
     for (const field of invalidFields) {
@@ -443,8 +458,18 @@ describe("updateEventValidation", () => {
       },
       {
         name: "name",
-        value: 12345,
+        value: 1234,
         message: "The name field must be a string.",
+      },
+      {
+        name: "name",
+        value: "1234",
+        message: "The name field must be between 5 and 50 characters.",
+      },
+      {
+        name: "name",
+        value: "The name field must be between 5 and 50 characters.",
+        message: "The name field must be between 5 and 50 characters.",
       },
       {
         name: "date",

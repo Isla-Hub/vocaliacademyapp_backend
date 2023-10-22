@@ -15,7 +15,9 @@ const createEventValidation = [
     .notEmpty()
     .withMessage("The name field is required.")
     .isString()
-    .withMessage("The name field must be a string."),
+    .withMessage("The name field must be a string.")
+    .isLength({ min: 5, max: 50 })
+    .withMessage("The name field must be between 5 and 50 characters."),
   body("date")
     .notEmpty()
     .withMessage("The date field is required.")
@@ -140,7 +142,9 @@ const updateEventValidation = [
     .notEmpty()
     .withMessage("The name field cannot be empty.")
     .isString()
-    .withMessage("The name field must be a string."),
+    .withMessage("The name field must be a string.")
+    .isLength({ min: 5, max: 50 })
+    .withMessage("The name field must be between 5 and 50 characters."),
   body("date")
     .optional()
     .notEmpty()

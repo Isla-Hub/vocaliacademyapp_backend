@@ -102,8 +102,18 @@ describe("createServiceValidation", () => {
     const invalidFields = [
       {
         name: "name",
-        value: "A name that is super long and the length is greater than 50",
-        message: "Name must be at most 50 characters long.",
+        value: 1234,
+        message: "The name field must be a string.",
+      },
+      {
+        name: "name",
+        value: "1234",
+        message: "The name field must be between 5 and 50 characters.",
+      },
+      {
+        name: "name",
+        value: "The name field must be between 5 and 50 characters.",
+        message: "The name field must be between 5 and 50 characters.",
       },
       {
         name: "createdBy",
@@ -202,8 +212,18 @@ describe("updateServiceValidation", () => {
     const invalidFields = [
       {
         name: "name",
-        value: "A name that is super long and the length is greater than 50",
-        message: "Name must be at most 50 characters long.",
+        value: 1234,
+        message: "The name field must be a string.",
+      },
+      {
+        name: "name",
+        value: "1234",
+        message: "The name field must be between 5 and 50 characters.",
+      },
+      {
+        name: "name",
+        value: "The name field must be between 5 and 50 characters.",
+        message: "The name field must be between 5 and 50 characters.",
       },
       {
         name: "createdBy",
